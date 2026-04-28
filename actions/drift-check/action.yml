@@ -1,0 +1,68 @@
+name: 'Living Docs — Drift Check'
+description: 'Verify that PRs touching code paths in CLAUDE.md article-mapping table also touch the corresponding articles. Enforces the same-task rule.'
+author: 'living-doc methodology'
+branding:
+  icon: 'book-open'
+  color: 'blue'
+
+inputs:
+  claude-md-path:
+    description: 'Path to the CLAUDE.md file containing the article-mapping table (relative to repo root).'
+    required: false
+    default: 'CLAUDE.md'
+  knowledge-dir:
+    description: 'Path to the knowledge directory (relative to repo root).'
+    required: false
+    default: 'knowledge'
+  base-ref:
+    description: 'Base ref (branch or commit SHA) to diff against. Defaults to the PR base branch.'
+    required: false
+    default: ''
+  fail-on-violation:
+    description: 'If "true", fail the action when a violation is detected. If "false", only emit a warning. Default "true".'
+    required: false
+    default: 'true'
+  comment-on-pr:
+    description: 'If "true", post a comment on the PR with the violation details. Requires write permission for pull-requests. Default "true".'
+    required: false
+    default: 'true'
+
+outputs:
+  violations:
+    description: 'Number of violations detected.'
+    value: ${{ steps.check.outputs.violations }}
+  report:
+    description: 'Markdown-formatted report of the check results.'
+    value: ${{ steps.check.outputs.report }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Run drift check
+      id: check
+      shell: bash
+      env:
+        CLAUDE_MD_PATH: ${{ inputs.claude-md-path }}
+        KNOWLEDGE_DIR: ${{ inputs.knowledge-dir }}
+        BASE_REF: ${{ inputs.base-ref }}
+        FAIL_ON_VIOLATION: ${{ inputs.fail-on-violation }}
+      run: |
+        python "${{ github.action_path }}/drift_check.py"
+
+    - name: Comment on PR
+      if: inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' && steps.check.outputs.violations != '0'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const report = `${{ steps.check.outputs.report }}`;
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: report
+          });
