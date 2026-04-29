@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Drift check for the living-documentation methodology.
 
-Reads the article-mapping table from CLAUDE.md and verifies that PRs touching
-mapped code paths also touch the corresponding articles. Enforces the
-same-task rule at PR-review time, complementing the agent's discipline at
-write-time.
+Two mapping sources, merged in priority order:
+
+  1. Article frontmatter `affects:` globs (canonical; co-located with the
+     content they document — see concepts/methodology/affects-globs.md).
+  2. The legacy article-mapping table in CLAUDE.md (kept for backward
+     compatibility while adopters migrate `affects:` into article
+     frontmatter).
+
+For each changed file, the check finds articles whose `affects:` globs
+or whose CLAUDE.md table row patterns match. If the matched article
+itself was not changed in this PR, that's a violation: the same-task
+rule was skipped.
 
 Inputs (env vars):
     CLAUDE_MD_PATH    — path to CLAUDE.md (default: CLAUDE.md)
@@ -40,6 +48,81 @@ class MappingRow:
 
     code_pattern: str  # e.g., "src/workflows/*.py" or "the LLM agent"
     article_path: str  # e.g., "knowledge/concepts/x.md"
+
+
+def parse_frontmatter_affects(article_path: Path) -> list[str]:
+    """Extract the `affects:` glob list from an article's YAML frontmatter.
+
+    Articles without frontmatter, or without an `affects:` field, return [].
+    Hand-parses the simple shape we ship in the schema; doesn't pull in
+    PyYAML to keep the Action's runtime dependency-free.
+    """
+    try:
+        text = article_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+
+    if not text.startswith("---"):
+        return []
+    end_idx = text.find("\n---", 3)
+    if end_idx == -1:
+        return []
+    fm_lines = text[3:end_idx].splitlines()
+
+    affects: list[str] = []
+    in_affects = False
+    for line in fm_lines:
+        stripped = line.strip()
+        if not in_affects and stripped.startswith("affects:"):
+            # Inline form `affects: [a, b]` (rare; we ship the block form,
+            # but accept either for robustness).
+            inline = stripped[len("affects:"):].strip()
+            if inline.startswith("[") and inline.endswith("]"):
+                items = [
+                    s.strip().strip("'\"")
+                    for s in inline[1:-1].split(",")
+                    if s.strip()
+                ]
+                affects.extend(items)
+                continue
+            in_affects = True
+            continue
+        if in_affects:
+            if line.lstrip().startswith("-"):
+                val = line.lstrip()[1:].strip()
+                if (val.startswith("'") and val.endswith("'")) or (
+                    val.startswith('"') and val.endswith('"')
+                ):
+                    val = val[1:-1]
+                if val:
+                    affects.append(val)
+            else:
+                # Next field or end of frontmatter — stop.
+                in_affects = False
+    return affects
+
+
+def parse_articles_affects(knowledge_dir: str) -> list[MappingRow]:
+    """Walk knowledge/**/*.md and emit MappingRows from each article's
+    `affects:` frontmatter list.
+
+    `article_path` on each row is recorded relative to the repo root so
+    it can be compared against `git diff --name-only` output directly.
+    """
+    rows: list[MappingRow] = []
+    knowledge = Path(knowledge_dir)
+    if not knowledge.exists() or not knowledge.is_dir():
+        return rows
+    for article in sorted(knowledge.rglob("*.md")):
+        affects = parse_frontmatter_affects(article)
+        if not affects:
+            continue
+        article_str = str(article).replace("\\", "/")
+        for glob in affects:
+            rows.append(
+                MappingRow(code_pattern=glob, article_path=article_str)
+            )
+    return rows
 
 
 def parse_article_mapping(claude_md_text: str) -> list[MappingRow]:
@@ -113,22 +196,60 @@ def get_changed_files(base_ref: str) -> list[str]:
     return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
+def _glob_to_regex(pattern: str) -> str:
+    """Convert a glob (supporting `**` recursion) to a regex.
+
+    Mapping:
+      `**`  → `.*`         (matches across path separators)
+      `*`   → `[^/]*`      (matches within a single path segment)
+      `?`   → `[^/]`
+      Other regex meta-chars are escaped.
+
+    `a/**/b` matches both `a/b` and `a/x/y/b` (so the `/` immediately
+    following `**` is treated as optional). This matches typical adopter
+    expectations.
+    """
+    regex = ""
+    i = 0
+    while i < len(pattern):
+        if pattern[i:i + 2] == "**":
+            regex += ".*"
+            i += 2
+            if i < len(pattern) and pattern[i] == "/":
+                # Make the trailing slash optional so `a/**/b` matches `a/b`.
+                regex = regex.rstrip(".*") + r"(?:.*/)?"
+                i += 1
+        elif pattern[i] == "*":
+            regex += "[^/]*"
+            i += 1
+        elif pattern[i] == "?":
+            regex += "[^/]"
+            i += 1
+        elif pattern[i] in r".()[]{}+\|^$":
+            regex += re.escape(pattern[i])
+            i += 1
+        else:
+            regex += pattern[i]
+            i += 1
+    return f"^{regex}$"
+
+
 def code_pattern_matches_files(
     code_pattern: str, changed_files: list[str]
 ) -> list[str]:
     """Determine which changed files match a mapping row's code pattern.
 
     The pattern can be:
-    - A glob-like path (contains "/", "*", or ends in ".py" / similar) — match
-      via Python's fnmatch.
-    - A natural-language description (no path-like characters) — match by
-      keyword: any changed file whose path contains any non-trivial word from
-      the description.
+    - A glob-like path (contains "/", "*", or ends in a code extension) —
+      matched via a regex translation that supports `**` recursion. Cleaner
+      than Python's fnmatch which collapses `**` to `*`.
+    - A natural-language description (legacy CLAUDE.md table only) — matched
+      by keyword: any changed file whose path contains any non-trivial word
+      from the description. Best-effort fallback; new mappings should use
+      glob form.
 
     Returns the subset of changed_files that match.
     """
-    import fnmatch
-
     pattern = code_pattern.strip().strip("`")
 
     looks_like_path = "/" in pattern or "*" in pattern or pattern.endswith(
@@ -136,7 +257,8 @@ def code_pattern_matches_files(
     )
 
     if looks_like_path:
-        return [f for f in changed_files if fnmatch.fnmatch(f, pattern)]
+        regex = _glob_to_regex(pattern)
+        return [f for f in changed_files if re.match(regex, f)]
 
     # Natural-language description fallback: match by keyword.
     keywords = [
@@ -281,15 +403,24 @@ def main() -> int:
         )
         return 0
 
-    mapping = parse_article_mapping(claude_md.read_text(encoding="utf-8"))
+    # Canonical: read each article's `affects:` frontmatter.
+    frontmatter_mapping = parse_articles_affects(knowledge_dir)
+    # Legacy fallback: hand-edited table in CLAUDE.md (kept for adopters
+    # mid-migration; will eventually go away once frontmatter coverage is
+    # complete in their repo).
+    legacy_mapping = parse_article_mapping(claude_md.read_text(encoding="utf-8"))
+    mapping = frontmatter_mapping + legacy_mapping
+
     if not mapping:
         emit_output("violations", "0")
         emit_output(
             "report",
-            "ℹ️ Living Docs drift check found no article-mapping table in "
-            f"`{claude_md_path}`. Either the table hasn't been populated yet "
-            "(brownfield retrofit, early days) or the table format isn't "
-            "recognized. No violations reported.",
+            "ℹ️ Living Docs drift check found no article-mapping (no "
+            "`affects:` frontmatter under `"
+            f"{knowledge_dir}/`, and no mapping table in "
+            f"`{claude_md_path}`). Either the project hasn't started "
+            "writing articles yet (brownfield retrofit, early days) or "
+            "the formats aren't recognized. No violations reported.",
         )
         return 0
 

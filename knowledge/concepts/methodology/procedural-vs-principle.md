@@ -4,6 +4,11 @@ type: concept
 area: methodology
 updated: 2026-04-29
 status: thin
+affects:
+  - 'CLAUDE.md'
+  - 'templates/brownfield/CLAUDE.md'
+  - 'templates/greenfield/CLAUDE.md'
+load_bearing: true
 ---
 
 # Procedural compliance
@@ -97,18 +102,22 @@ failure framing alone is the same principle dressed up.
 ## What lands in the templates
 
 Both `templates/brownfield/CLAUDE.md` and
-`templates/greenfield/CLAUDE.md` should ship with all three
-reinforcements baked in by default. The repo's own CLAUDE.md (this
-repo) does so as the working example.
+`templates/greenfield/CLAUDE.md` ship with all three reinforcements
+baked in (applied 2026-04-29). The repo's own CLAUDE.md is the
+matching working example. New adoptions therefore inherit the
+procedural shape by default rather than just the principle.
 
-The two adoption guides should also call out the procedural framing
-in their methodology section, so adopters who customize CLAUDE.md
-don't strip it out under the assumption that "the rule is enough."
+The two adoption guides still describe the rule in principle form
+(prose explanation suits an onboarding read). They will be updated to
+call out the procedural reinforcements when next touched, so adopters
+who customize CLAUDE.md don't strip the checklist out under the
+assumption that "the rule is enough."
 
 ## Files
 
-- `CLAUDE.md` — this repo's working example
-- `templates/{brownfield,greenfield}/CLAUDE.md` — to be updated to
-  include the checklist + red flags + failure framing
-- `LIVING_DOCS_OVERVIEW.md`, the two adoption guides — to be updated
-  to mention procedural reinforcements when next touched
+- `CLAUDE.md` (this repo) — working example
+- `templates/brownfield/CLAUDE.md`, `templates/greenfield/CLAUDE.md` —
+  applied 2026-04-29; ship with checklist + red flags + failure
+  framing by default
+- `LIVING_DOCS_OVERVIEW.md`, the two adoption guides — pending
+  procedural-framing call-out at next touch

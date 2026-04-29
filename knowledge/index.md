@@ -25,7 +25,9 @@ touched.
 
 ### `tooling/` — internals
 
-_(empty — populate when `drift-check`, the Skill, or the templates are next modified)_
+| Article | Covers | Updated |
+| --- | --- | --- |
+| [drift-check](concepts/tooling/drift-check.md) | `drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback | 2026-04-29 |
 
 ## Connections
 

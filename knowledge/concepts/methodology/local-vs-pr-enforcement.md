@@ -4,6 +4,14 @@ type: concept
 area: methodology
 updated: 2026-04-29
 status: thin
+affects:
+  - 'actions/drift-check/**'
+  - 'scripts/drift-check'
+  - 'templates/hooks/**'
+load_bearing: true
+references:
+  - concepts/methodology/affects-globs.md
+  - concepts/methodology/procedural-vs-principle.md
 ---
 
 # Local + PR-time enforcement

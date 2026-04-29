@@ -23,11 +23,49 @@ must update the relevant `knowledge/concepts/*.md` article(s) in the same
 task and append an entry to `knowledge/log.md`. Don't batch knowledge
 updates for later.
 
+**Failure mode this prevents.** Skipping the article update means it
+goes stale before the next read. The next session will trust the stale
+article and produce wrong work. The drift compounds. This is not
+stylistic — it's load-bearing.
+
 **Capture first, refine second:** when in doubt about whether a change is
 documentation-relevant, write the update anyway. When in doubt about where
 a new article belongs, pick the closest fit and write it. The user reviews
 and refines. Missing context is unrecoverable; an imperfect article costs
 minutes.
+
+### Before any commit
+
+The same-task rule is a *principle*; this checklist is the *procedure*.
+Run through it before every commit:
+
+1. List the files in this commit's diff.
+2. For each: any article's `affects:` frontmatter glob match it? (Until
+   the `affects:`-based mapping is in place, fall back to the
+   article-mapping table below.) Open those articles.
+3. Did this change alter behaviour, configuration, models, structure,
+   or a documented decision?
+4. If yes: stage the article update + a `log.md` entry **in this same
+   commit**.
+5. If no article exists for the touched code path: write a thin one
+   now (~200 words). Don't open a follow-up issue; don't defer.
+6. If the change is genuinely doc-irrelevant (typo, formatting,
+   refactor with identical observable behaviour): the commit body
+   must say so explicitly: `no knowledge impact: <reason>`.
+
+### Red flags
+
+These thoughts mean STOP and audit:
+
+- "I'll update docs after this commit lands."
+- "The article is roughly correct."
+- "This is too small to document."
+- "Let me ship and circle back."
+- "The reviewer can flag it if it matters."
+
+Each phrase rationalizes a skip that compounds. The cost of pausing
+to update the article is minutes; the cost of stale documentation is
+unbounded.
 
 ### What lives where
 

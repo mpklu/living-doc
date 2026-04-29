@@ -4,6 +4,13 @@ type: concept
 area: methodology
 updated: 2026-04-29
 status: thin
+affects:
+  - 'actions/drift-check/drift_check.py'
+  - 'actions/drift-check/action.yml'
+load_bearing: true
+references:
+  - concepts/methodology/frontmatter-as-source-of-truth.md
+  - concepts/methodology/local-vs-pr-enforcement.md
 ---
 
 # `affects:` globs
@@ -56,11 +63,16 @@ flexible enough that file moves within a directory don't break them.
 ## Backward compatibility
 
 Adopters with existing hand-edited mapping tables don't need to
-migrate immediately. The drift checker's behaviour:
+migrate immediately. The drift checker's behaviour (shipped 2026-04-29
+in `actions/drift-check/drift_check.py`):
 
 1. Scan articles for `affects:` frontmatter. Build map A.
 2. Parse the CLAUDE.md mapping table (legacy). Build map B.
 3. Use the union of A + B for the actual check.
+
+The matcher also now supports `**` recursion natively (was previously
+fnmatch-only, which collapsed `**` to `*`). See
+`concepts/tooling/drift-check.md` for the implementation details.
 
 Adopters can migrate incrementally: add `affects:` to articles when
 they're touched anyway (per the same-task rule), let the table shrink

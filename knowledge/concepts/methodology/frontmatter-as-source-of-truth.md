@@ -4,6 +4,12 @@ type: concept
 area: methodology
 updated: 2026-04-29
 status: thin
+affects:
+  - 'schemas/article-frontmatter.schema.json'
+  - 'templates/**/knowledge/**'
+load_bearing: true
+references:
+  - concepts/methodology/affects-globs.md
 ---
 
 # Frontmatter as source of truth
@@ -31,8 +37,9 @@ references: ['other-article.md']
 ---
 ```
 
-JSON Schema lives at `schemas/article-frontmatter.schema.json`
-(planned; not yet shipped).
+JSON Schema lives at `schemas/article-frontmatter.schema.json` (shipped
+2026-04-29). Validators can reference it directly; the Skill's `audit`
+mode reads it to flag malformed frontmatter.
 
 ### Field semantics
 
@@ -87,12 +94,12 @@ methodology needs to function:
 
 A small validator CLI (`scripts/validate-articles`) that checks every
 file's frontmatter against the JSON Schema and flags missing fields,
-unknown `area:` values, broken `references:`, etc. Lands as part of
-the same-bundle work that adds `affects:` (see `affects-globs.md`).
+unknown `area:` values, broken `references:`, etc. Will land alongside
+the local drift-check CLI (see `local-vs-pr-enforcement.md`).
 
 ## Files
 
-- `schemas/article-frontmatter.schema.json` — planned, not yet shipped
+- `schemas/article-frontmatter.schema.json` — shipped
 - `affects-globs.md` — what becomes possible once frontmatter is
   reliable
 - `templates/{brownfield,greenfield}/knowledge/concepts/example.md` —

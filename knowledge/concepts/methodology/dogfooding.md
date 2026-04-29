@@ -4,6 +4,11 @@ type: concept
 area: methodology
 updated: 2026-04-29
 status: thin
+affects:
+  - 'CLAUDE.md'
+  - 'README.md'
+  - 'knowledge/index.md'
+load_bearing: true
 ---
 
 # Dogfooding the methodology
