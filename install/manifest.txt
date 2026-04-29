@@ -1,0 +1,40 @@
+# Living-docs install manifest.
+#
+# Format: group:source_in_repo -> dest_in_target_repo (mode)
+#
+# {kind} is substituted with `brownfield` or `greenfield` after detection.
+# Modes (comma-separated):
+#   add-only — write only if dest doesn't exist; skip otherwise.
+#   merge    — if dest exists, print the snippet and instructions,
+#              skip writing. (For configs adopters likely already have.)
+#   exec     — chmod +x after writing.
+#
+# Lines starting with # or empty lines are ignored.
+# Group names are referenced by install.sh; don't rename without updating both.
+
+# core — the minimum for the methodology to apply.
+core:templates/{kind}/CLAUDE.md -> CLAUDE.md (add-only)
+core:templates/{kind}/knowledge/index.md -> knowledge/index.md (add-only)
+core:templates/{kind}/knowledge/log.md -> knowledge/log.md (add-only)
+core:templates/{kind}/knowledge/concepts/.gitkeep -> knowledge/concepts/.gitkeep (add-only)
+core:templates/{kind}/knowledge/connections/.gitkeep -> knowledge/connections/.gitkeep (add-only)
+core:schemas/article-frontmatter.schema.json -> schemas/article-frontmatter.schema.json (add-only)
+
+# cli — local drift-check + validate-articles.
+# scripts/* import from actions/drift-check/*.py via sys.path walk.
+cli:scripts/drift-check -> scripts/drift-check (add-only,exec)
+cli:scripts/validate-articles -> scripts/validate-articles (add-only,exec)
+cli:actions/drift-check/drift_check.py -> actions/drift-check/drift_check.py (add-only)
+cli:actions/drift-check/validate_articles.py -> actions/drift-check/validate_articles.py (add-only)
+
+# hook-* — pick one based on detected framework.
+hook-pre-commit:templates/hooks/pre-commit-config.yaml -> .pre-commit-config.yaml (merge)
+hook-husky:templates/hooks/husky-pre-commit -> .husky/pre-commit (add-only,exec)
+hook-lefthook:templates/hooks/lefthook.yml -> lefthook.yml (merge)
+
+# action — PR-time enforcement via GitHub Actions.
+action:actions/drift-check/example-usage.yml -> .github/workflows/living-docs-drift-check.yml (add-only)
+
+# prompts — paste-able Claude prompt to bootstrap first 3 articles.
+# {kind}-substituted source; lands at repo root with a loud name.
+prompts:templates/prompts/first-articles-{kind}.md -> LIVING_DOCS_FIRST_PROMPT.md (add-only)

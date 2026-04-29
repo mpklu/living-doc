@@ -76,7 +76,9 @@ counterargument.
 - `README.md` — landing page; its "What's enforced, and where"
   section is the public summary of the layered enforcement that
   dogfooding stress-tests (agent rule + local hook + PR Action).
-  The repo-contents table also surfaces `templates/prompts/` as
-  methodology surface, which is itself a dogfooding artifact —
-  the prompt-as-methodology argument lives in
-  `concepts/methodology/prompts.md`
+  The repo-contents table also surfaces `templates/prompts/` and
+  `install/` as methodology surface — both dogfooding artifacts.
+  Pattern 0 (the curl one-liner) makes the methodology adoptable
+  in one command; the prompt-as-methodology argument lives in
+  `concepts/methodology/prompts.md`, the installer-as-tooling
+  argument in `concepts/tooling/install-script.md`

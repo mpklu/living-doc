@@ -18,6 +18,7 @@ The methodology is small (three documents you can read in 30 minutes) and discip
 | **[`templates/`](templates/)** | Copy-paste-ready starter files: `CLAUDE.md`, `knowledge/` skeleton, PR template snippet. |
 | **[`templates/hooks/`](templates/hooks/)** | Pre-commit hook configs for the pre-commit framework, husky, and lefthook. Local enforcement at commit time. |
 | **[`templates/prompts/`](templates/prompts/)** | Paste-able Claude prompts for common methodology workflows (e.g., bootstrap your first three articles after adoption). |
+| **[`install/`](install/)** | Curl-able adoption installer (`install.sh` + `manifest.txt`). One-command setup with detection, dry-run, and idempotent re-runs. |
 | **[`skills/living-docs/`](skills/living-docs/)** | Claude Code Skill that walks Claude through adoption interactively. |
 | **[`actions/drift-check/`](actions/drift-check/)** | GitHub Action that verifies PRs touch articles when they touch mapped code paths. |
 | **[`scripts/`](scripts/)** | Local CLI shims: `drift-check` (mirrors the Action) and `validate-articles` (frontmatter sanity check). Zero-dep Python. |
@@ -25,7 +26,15 @@ The methodology is small (three documents you can read in 30 minutes) and discip
 
 ## How to use this repo
 
-There are three patterns, in order of leverage.
+There are four patterns, in order of leverage.
+
+### Pattern 0 — one-command install (fastest)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mpklu/living-doc/main/install/install.sh | bash
+```
+
+Run from your project's root. The installer detects greenfield vs. brownfield, asks you to confirm, and copies in the right mix of `CLAUDE.md`, `knowledge/`, the local CLI, a pre-commit hook, the GitHub Action (if you have a GitHub remote), and a paste-able Claude prompt for bootstrapping your first three articles. Idempotent — re-running is safe. See [`install/README.md`](install/README.md) for flags (`--ref`, `--dry-run`, `--force`).
 
 ### Pattern 1 — reference by URL (cheapest)
 

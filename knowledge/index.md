@@ -31,6 +31,7 @@ touched.
 | --- | --- | --- |
 | [drift-check](concepts/tooling/drift-check.md) | `drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback | 2026-04-29 |
 | [validate-articles](concepts/tooling/validate-articles.md) | Frontmatter schema validator: hand-rolled YAML parser, cross-reference check, schema-as-contract caveat | 2026-04-29 |
+| [install-script](concepts/tooling/install-script.md) | `install/install.sh` internals: bash 3.2+, manifest-driven, atomic per-file write, idempotent re-run, detection bias toward brownfield | 2026-04-29 |
 
 ## Connections
 
