@@ -17,6 +17,7 @@ The methodology is small (three documents you can read in 30 minutes) and discip
 | **[`GLOSSARY.md`](GLOSSARY.md)** | Vocabulary reference — concept article, compile log, drift sweep, etc. |
 | **[`templates/`](templates/)** | Copy-paste-ready starter files: `CLAUDE.md`, `knowledge/` skeleton, PR template snippet. |
 | **[`templates/hooks/`](templates/hooks/)** | Pre-commit hook configs for the pre-commit framework, husky, and lefthook. Local enforcement at commit time. |
+| **[`templates/prompts/`](templates/prompts/)** | Paste-able Claude prompts for common methodology workflows (e.g., bootstrap your first three articles after adoption). |
 | **[`skills/living-docs/`](skills/living-docs/)** | Claude Code Skill that walks Claude through adoption interactively. |
 | **[`actions/drift-check/`](actions/drift-check/)** | GitHub Action that verifies PRs touch articles when they touch mapped code paths. |
 | **[`scripts/`](scripts/)** | Local CLI shims: `drift-check` (mirrors the Action) and `validate-articles` (frontmatter sanity check). Zero-dep Python. |

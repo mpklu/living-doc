@@ -23,6 +23,7 @@ touched.
 | [local-vs-pr-enforcement](concepts/methodology/local-vs-pr-enforcement.md) | Layered defense: local pre-commit + PR Action; same logic, two firing points | 2026-04-29 |
 | [procedural-vs-principle](concepts/methodology/procedural-vs-principle.md) | Same-task rule expressed as a checklist + red-flag phrases, not just principle | 2026-04-29 |
 | [session-handoff](concepts/methodology/session-handoff.md) | Bridging context boundaries; planned `skills/session-handoff/` skill that captures cursor + open items at session-end | 2026-04-29 |
+| [prompts](concepts/methodology/prompts.md) | Why we ship paste-able Claude prompts under `templates/prompts/`; what makes a good one; drift risk via the schema | 2026-04-29 |
 
 ### `tooling/` — internals
 
