@@ -38,6 +38,10 @@ Each file is fetched to `${TMP_DIR}/staged-N`, then `mv`'d into place. A Ctrl+C 
 
 Existing files are skipped by default with a clear notice. `--force` opts into overwriting. `--dry-run` prints the plan and writes nothing — useful for review before committing to the change.
 
+## Version pinning
+
+`--ref <tag|branch>` controls which methodology version the script fetches; default is `main`. Adopters should pin to a tag (e.g. `--ref v0.1.0`) for reproducibility — without a pin, an installer run today may differ from one yesterday because `main` moved. The first tagged release is `v0.1.0`; see `CHANGELOG.md` for what's in each tag.
+
 ## What it deliberately doesn't do
 
 - Run `pre-commit install` / `husky install` / `lefthook install`. Adopter hook setup is theirs to manage.

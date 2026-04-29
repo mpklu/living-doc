@@ -2,6 +2,30 @@
 
 Append-only narrative of changes to `knowledge/`. Newest at top.
 
+## [2026-04-29] release | v0.1.0 cut
+
+First tagged release. CHANGELOG.md rolled from `[Unreleased]` →
+`[0.1.0] — 2026-04-29` with full inventory of what shipped:
+methodology surface (3 core docs + glossary + roadmap),
+adoption surface (install.sh + templates + prompts + Skill),
+tooling (drift-check Action + library split + CLI shims +
+validate-articles + frontmatter schema), meta-repo dogfooding
+(`knowledge/`).
+
+`install/README.md` references normalized from `v0.1` → `v0.1.0`
+to match the actual tag name (SemVer 3-part). `install-script.md`
+gains a "Version pinning" section explaining `--ref v0.1.0` and
+why pinning matters (without a pin, today's install differs from
+yesterday's because main moves).
+
+CHANGELOG note worth preserving in log: the entries call out two
+non-obvious correctness facts adopters might wonder about — the
+custom `**` glob translator (because Python's fnmatch collapses
+`**` to `*`) and the staged-only diff in pre-commit hooks (because
+`git diff HEAD` includes unstaged dirty files, producing false
+positives). Both were caught in the cross-session review pass that
+preceded this tag.
+
 ## [2026-04-29] new surface | curl-able install.sh
 
 `install/install.sh` shipped — the one-command adoption on-ramp.

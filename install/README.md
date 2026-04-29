@@ -34,7 +34,7 @@ bash install.sh             # run for real
 
 | Flag | What it does |
 | --- | --- |
-| `--ref <tag\|branch>` | Methodology version to fetch (default: `main`). Once tags exist, pin via `--ref v0.1`. |
+| `--ref <tag\|branch>` | Methodology version to fetch (default: `main`). Once tags exist, pin via `--ref v0.1.0`. |
 | `--dry-run` | Print the plan but write nothing. |
 | `--force` | Overwrite existing files. **Destructive — only when you mean it.** |
 | `--help` | Print usage. |
@@ -71,10 +71,10 @@ Custom mode lets you pick any subset.
 
 ## Pinning to a version
 
-Once the repo tags releases (`v0.1`, etc.), pass `--ref v0.1` to lock to that methodology version:
+Once the repo tags releases (`v0.1.0`, etc.), pass `--ref v0.1.0` to lock to that methodology version:
 
 ```bash
-curl -fsSL .../install.sh | bash -s -- --ref v0.1
+curl -fsSL .../install.sh | bash -s -- --ref v0.1.0
 ```
 
 Without a `--ref`, you get whatever's on `main`. That's fine for trying it out; pin once you want reproducibility.
