@@ -25,8 +25,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        # base ref for the diff. CI may need to set this differently.
-        args: [--base-ref, HEAD~1]
+        # HEAD = staged-only diff (the about-to-be-committed set).
+        # See "Choosing a --base-ref" below.
+        args: [--base-ref, HEAD]
 ```
 
 Install once: `pre-commit install`. Subsequent commits run the check.
@@ -67,16 +68,19 @@ The drift check needs to know "what's changing in this commit?" so it
 can match changed files against article `affects:` globs. Three
 options:
 
-- **`HEAD`** — diff working tree against the last commit. Catches
-  changes about to be committed. Simplest; recommended for pre-commit.
+- **`HEAD`** — staged-only diff (`git diff --cached`): the exact set
+  the about-to-be-created commit will contain. Recommended for
+  pre-commit. Unstaged working-tree edits in unrelated files are
+  intentionally excluded — including them would flag articles whose
+  `affects:` happens to match dirty paths the contributor isn't
+  actually committing.
 - **`HEAD~1`** — diff the just-finished commit against its parent.
   Useful for post-commit verification or in `pre-push` hooks.
 - **`origin/main`** — diff the entire branch. Useful in CI mirroring
   the PR-time check.
 
-For pre-commit, **`HEAD`** is the right default: the hook fires
-*before* the commit is created, and the working tree contains the
-about-to-be-committed changes.
+For pre-commit, **`HEAD`** is the right default and what all three
+hook templates above pass.
 
 ## Bypass behaviour
 

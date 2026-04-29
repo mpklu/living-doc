@@ -52,8 +52,8 @@ Three deliverables:
    - `husky-pre-commit` (Husky shell hook)
    - `lefthook.yml` (Lefthook config)
    - `README.md` with installation notes for each, plus guidance on
-     `--base-ref` choice (`HEAD` for pre-commit, `HEAD~1` for
-     post-commit, `origin/main` for branch-wide).
+     `--base-ref` choice (`HEAD` = staged-only for pre-commit,
+     `HEAD~1` for post-commit, `origin/main` for branch-wide).
 3. **Library split inside `drift_check.py`.** A new I/O-free `run_check()`
    takes paths + base ref, returns a result dict. Both `main()`
    (env-driven, GH Action) and `cli_main()` (argparse-driven) call
@@ -102,10 +102,13 @@ happy path. Speak only when there's something to fix.
 
 ## Files
 
-- `actions/drift-check/drift_check.py` — current implementation
-  (Action-only). Will be split into a library + thin Action wrapper
-  + thin CLI wrapper.
-- `templates/hooks/` — planned pre-commit templates
-- `affects-globs.md` — the source the check consumes
+- `actions/drift-check/drift_check.py` — shared core (`run_check`)
+  plus thin `main()` (Action) and `cli_main()` (CLI) wrappers. Library
+  split shipped 2026-04-29.
+- `scripts/drift-check` — local CLI shim that finds the repo root
+  and dispatches to `cli_main()`.
+- `templates/hooks/` — pre-commit, husky, and lefthook templates,
+  all passing `--base-ref HEAD` (staged-only diff).
+- `affects-globs.md` — the source the check consumes.
 - `procedural-vs-principle.md` — what the contributor follows when
-  the check tells them they missed an article
+  the check tells them they missed an article.

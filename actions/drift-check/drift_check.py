@@ -176,15 +176,18 @@ def get_changed_files(base_ref: str) -> list[str]:
     """Return the list of files changed between base_ref and HEAD.
 
     Two modes:
-    - `base_ref == "HEAD"` — working tree vs. HEAD. The pre-commit case:
-      contributor hasn't created the new commit yet, so we look at
-      what's staged + unstaged.
+    - `base_ref == "HEAD"` — staged-vs-HEAD (i.e. `git diff --cached`).
+      The pre-commit case: only files that are part of the about-to-be-
+      created commit. Unstaged working-tree edits in unrelated files
+      are intentionally excluded — they aren't being committed and
+      including them produces false positives against articles whose
+      `affects:` happens to match dirty-but-untouched paths.
     - Otherwise — `base_ref...HEAD` symmetric diff (PR-time / CI case).
     """
     if base_ref == "HEAD":
         try:
             result = subprocess.run(
-                ["git", "diff", "--name-only", "HEAD"],
+                ["git", "diff", "--name-only", "--cached"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -233,12 +236,21 @@ def _glob_to_regex(pattern: str) -> str:
     i = 0
     while i < len(pattern):
         if pattern[i:i + 2] == "**":
-            regex += ".*"
-            i += 2
-            if i < len(pattern) and pattern[i] == "/":
-                # Make the trailing slash optional so `a/**/b` matches `a/b`.
-                regex = regex.rstrip(".*") + r"(?:.*/)?"
-                i += 1
+            # If a `/` follows, treat `**/` as a single token meaning
+            # "zero or more path segments" (so `a/**/b` matches `a/b`
+            # and `a/x/y/b`). Otherwise emit a plain `.*`.
+            #
+            # We do NOT use `regex.rstrip(".*")` here: it would also
+            # strip trailing `.` and `*` characters from preceding
+            # tokens (e.g. the `*` in a just-emitted `[^/]*`, or an
+            # escaped literal `\.`), corrupting the regex for patterns
+            # like `foo*/**/bar` or `.**/x`.
+            if i + 2 < len(pattern) and pattern[i + 2] == "/":
+                regex += r"(?:.*/)?"
+                i += 3
+            else:
+                regex += ".*"
+                i += 2
         elif pattern[i] == "*":
             regex += "[^/]*"
             i += 1
@@ -540,9 +552,9 @@ def cli_main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    # Detect entry: GitHub Actions env exposes GITHUB_OUTPUT; locally we
-    # use argv. Heuristic — explicit env wins; otherwise treat extra
-    # argv as CLI args.
-    if os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("GITHUB_OUTPUT"):
+    # Dispatch: only the GH runner sets GITHUB_ACTIONS=true. Anything
+    # else (including a local shell that happens to have GITHUB_OUTPUT
+    # exported from a prior CI debug session) routes to the CLI.
+    if os.environ.get("GITHUB_ACTIONS") == "true":
         sys.exit(main())
     sys.exit(cli_main())

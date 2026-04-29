@@ -37,15 +37,36 @@ core. It returns a dict with `status`, `report`, `violations`,
   (`--claude-md`, `--knowledge-dir`, `--base-ref`, `--warn-only`),
   prints the report, exits 1 on violations unless `--warn-only`.
 
-The `__main__` block dispatches: `GITHUB_ACTIONS=true` (or
-`GITHUB_OUTPUT` set) → `main()`; otherwise → `cli_main()`. Both
-behaviours from one file means both surfaces stay in sync as the
-core evolves.
+The `__main__` block dispatches strictly on `GITHUB_ACTIONS=true` →
+`main()`; anything else → `cli_main()`. An earlier version also
+treated `GITHUB_OUTPUT` being set as an Action-mode signal; that
+heuristic was dropped because a developer with `GITHUB_OUTPUT`
+exported in their shell from a prior CI debug session would silently
+hit Action mode locally. Both behaviours from one file means both
+surfaces stay in sync as the core evolves.
 
 The repo's `scripts/drift-check` is a thin Python wrapper that walks
 up to the repo root, adds `actions/drift-check/` to `sys.path`, and
 calls `cli_main()`. Lets adopters invoke the check from any
 directory in their repo without installing a package.
+
+## How `get_changed_files` resolves the diff
+
+The change set the rest of the pipeline matches against depends on
+`base_ref`:
+
+- **`base_ref == "HEAD"`** → `git diff --name-only --cached`. This is
+  the pre-commit case: only the staged set, i.e. the exact files the
+  about-to-be-created commit will contain. Unstaged working-tree
+  edits in unrelated files are deliberately excluded — including
+  them produces false positives against articles whose `affects:`
+  happens to match dirty paths the contributor isn't actually
+  committing. (Earlier code used `git diff HEAD`, which is
+  staged + unstaged; the false-positive risk is why we changed it.)
+- **anything else** → `git diff --name-only base_ref...HEAD`
+  (symmetric diff). PR-time and CI case. Falls back to
+  `git diff base_ref HEAD` if the symmetric form fails (e.g. the
+  base ref was given as a remote ref).
 
 ## Two mapping sources, merged
 
@@ -92,8 +113,10 @@ time.
 stdlib `fnmatch.fnmatch` collapses `**` to `*`. The translator
 maps:
 
-- `**` → `.*` (matches across path separators, including none)
-- `**/` → `(?:.*/)?` (so `a/**/b` matches `a/b` AND `a/x/y/b`)
+- `**/` → `(?:.*/)?` (so `a/**/b` matches `a/b` AND `a/x/y/b`).
+  Treated as a single token, not as `**` followed by `/`.
+- `**` (not followed by `/`) → `.*` (matches across path separators,
+  including none)
 - `*` → `[^/]*` (single-segment match)
 - `?` → `[^/]`
 - regex meta-characters escaped
@@ -101,6 +124,14 @@ maps:
 This matters because `affects:` patterns in articles routinely use
 `**` (e.g., `'actions/drift-check/**'`). The previous fnmatch-only
 behaviour would have silently failed to match nested files.
+
+**Why `**/` is one token, not two stages.** An earlier version
+emitted `.*` for `**` then post-processed via `regex.rstrip(".*")`
+when a `/` followed. That stripped trailing `.` and `*` characters
+indiscriminately — corrupting prior tokens like a literal `\.` or
+the `*` in a just-emitted `[^/]*`. Patterns like `foo*/**/bar` or
+`.**/x` would degenerate. The current single-token lookahead avoids
+that class of bug entirely.
 
 ## Free-text fallback (legacy table only)
 
@@ -139,11 +170,12 @@ The Action runs against itself (this repo dogfoods). Confirmed:
 
 ## Future work tracked elsewhere
 
-- Local CLI mirror — see `local-vs-pr-enforcement.md`.
-- Article frontmatter validator — see
-  `frontmatter-as-source-of-truth.md`.
 - Drift sweep on `mature` articles — separate from this checker;
   documented when the sweep tooling lands.
+
+(The local CLI mirror and the article frontmatter validator both
+shipped — see `local-vs-pr-enforcement.md` and
+`concepts/tooling/validate-articles.md` respectively.)
 
 ## Files
 

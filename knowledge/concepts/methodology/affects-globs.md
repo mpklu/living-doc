@@ -5,8 +5,7 @@ area: methodology
 updated: 2026-04-29
 status: thin
 affects:
-  - 'actions/drift-check/drift_check.py'
-  - 'actions/drift-check/action.yml'
+  - 'schemas/article-frontmatter.schema.json'
 load_bearing: true
 references:
   - concepts/methodology/frontmatter-as-source-of-truth.md
@@ -92,6 +91,19 @@ naturally. After enough articles have `affects:`, delete the table.
   function between files in the same glob still requires article
   judgment. The check is "did you open the article?", not "did you
   write the right thing?".
+
+## What this article's own `affects:` covers
+
+Just `schemas/article-frontmatter.schema.json` — that schema IS the
+contract this article describes, so a schema change can invalidate
+the article's claims about `affects:` syntax and shape. The drift-
+check implementation (`drift_check.py`, `action.yml`) used to be
+listed here, but a bug fix in the matcher doesn't invalidate the
+methodology decision; that belongs to `concepts/tooling/drift-
+check.md`. Same lesson the previous session captured for
+`dogfooding.md`: `affects:` globs should match files whose change
+would *invalidate* the article, not files the article references in
+passing.
 
 ## Migration of this repo's mapping
 

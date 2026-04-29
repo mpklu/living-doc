@@ -73,3 +73,6 @@ counterargument.
 - `knowledge/log.md` — retrofit start entry (2026-04-29)
 - `LIVING_DOCS_OVERVIEW.md`, `BROWNFIELD_ADOPTION_GUIDE.md` — the
   adopter surface this repo's articles complement
+- `README.md` — landing page; its "What's enforced, and where"
+  section is the public summary of the layered enforcement that
+  dogfooding stress-tests (agent rule + local hook + PR Action)

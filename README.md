@@ -16,8 +16,11 @@ The methodology is small (three documents you can read in 30 minutes) and discip
 | **[`BROWNFIELD_ADOPTION_GUIDE.md`](BROWNFIELD_ADOPTION_GUIDE.md)** | Adopting on an existing codebase. 12 ordered steps, with the "document on touch" mindset and multi-repo workspace patterns. |
 | **[`GLOSSARY.md`](GLOSSARY.md)** | Vocabulary reference — concept article, compile log, drift sweep, etc. |
 | **[`templates/`](templates/)** | Copy-paste-ready starter files: `CLAUDE.md`, `knowledge/` skeleton, PR template snippet. |
+| **[`templates/hooks/`](templates/hooks/)** | Pre-commit hook configs for the pre-commit framework, husky, and lefthook. Local enforcement at commit time. |
 | **[`skills/living-docs/`](skills/living-docs/)** | Claude Code Skill that walks Claude through adoption interactively. |
 | **[`actions/drift-check/`](actions/drift-check/)** | GitHub Action that verifies PRs touch articles when they touch mapped code paths. |
+| **[`scripts/`](scripts/)** | Local CLI shims: `drift-check` (mirrors the Action) and `validate-articles` (frontmatter sanity check). Zero-dep Python. |
+| **[`schemas/article-frontmatter.schema.json`](schemas/article-frontmatter.schema.json)** | JSON Schema contract for article frontmatter (`title`, `type`, `area`, `updated`, `status`, optional `affects:` globs). |
 
 ## How to use this repo
 
@@ -59,9 +62,31 @@ For a multi-repo workspace:
 cp -R templates/workspace-level/* /path/to/your/workspace/
 ```
 
+Optionally also copy a pre-commit hook so the same-task rule fails fast at commit time, not just at PR review time:
+
+```bash
+cp templates/hooks/pre-commit-config.yaml /path/to/your/project/.pre-commit-config.yaml
+# or husky-pre-commit / lefthook.yml — see templates/hooks/README.md
+cp -R scripts/ /path/to/your/project/scripts/   # CLI the hook invokes
+```
+
 ### Pattern 3 — install the Skill (most polished)
 
 Install the Claude Code Skill from `skills/living-docs/` and run `/living-docs:adopt` in any workspace. The skill detects greenfield/brownfield, walks through the appropriate guide interactively, and generates the initial files. See [`skills/living-docs/SKILL.md`](skills/living-docs/SKILL.md) for installation.
+
+## What's enforced, and where
+
+Three layers, each catching what the others miss. All three read the same article-mapping source.
+
+| Layer | Where it runs | Catches | How to enable |
+| --- | --- | --- | --- |
+| **Agent rule** | Inside the AI agent's loop, on every interaction | "I forgot to update the article" — the contributor's primary line of defense. | Ships in `templates/{greenfield,brownfield}/CLAUDE.md`. The 6-step "Before any commit" checklist + red-flag phrases. |
+| **Local pre-commit hook** | Contributor's machine, at `git commit` time | Same forgetting, when the agent didn't catch it. Fails the commit before it lands. | Copy `templates/hooks/<framework>` + `scripts/drift-check`. See [`templates/hooks/README.md`](templates/hooks/README.md). |
+| **PR-time GitHub Action** | CI, on every PR | Hooks bypassed (`--no-verify`), uninstalled, or never set up. Reviewer-visible safety net. | Add `actions/drift-check/` to a workflow. See [`actions/drift-check/example-usage.yml`](actions/drift-check/example-usage.yml). |
+
+**Article-mapping source.** Each article declares the code paths it covers via an `affects:` glob list in YAML frontmatter (validated against [`schemas/article-frontmatter.schema.json`](schemas/article-frontmatter.schema.json)). Run `scripts/validate-articles` to check frontmatter integrity. The legacy `CLAUDE.md` mapping table is still supported for incremental migration; both sources are unioned.
+
+You can adopt any subset of the layers. The agent rule alone is the cheapest start; the hook + Action close the loopholes.
 
 ## Quick start — greenfield project, single repo
 
@@ -102,4 +127,4 @@ See [`CHANGELOG.md`](CHANGELOG.md). The methodology evolves; if you reference th
 
 ## Roadmap and contributing
 
-See [`ROADMAP.md`](ROADMAP.md) for the planned phases (templates, Skill, GitHub Action, IDE integration). Issues and discussions welcome.
+Templates, the Skill, the GitHub Action, the local CLI, and the frontmatter schema have all shipped. See [`ROADMAP.md`](ROADMAP.md) for what's next (drift sweep tooling, IDE integration, generated mapping table). Issues and discussions welcome.
