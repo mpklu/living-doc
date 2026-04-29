@@ -173,7 +173,27 @@ def parse_article_mapping(claude_md_text: str) -> list[MappingRow]:
 
 
 def get_changed_files(base_ref: str) -> list[str]:
-    """Return the list of files changed between base_ref and HEAD."""
+    """Return the list of files changed between base_ref and HEAD.
+
+    Two modes:
+    - `base_ref == "HEAD"` — working tree vs. HEAD. The pre-commit case:
+      contributor hasn't created the new commit yet, so we look at
+      what's staged + unstaged.
+    - Otherwise — `base_ref...HEAD` symmetric diff (PR-time / CI case).
+    """
+    if base_ref == "HEAD":
+        try:
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"::error::git diff failed: {e.stderr}", file=sys.stderr)
+            sys.exit(2)
+        return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
     try:
         result = subprocess.run(
             ["git", "diff", "--name-only", f"{base_ref}...HEAD"],
@@ -182,7 +202,7 @@ def get_changed_files(base_ref: str) -> list[str]:
             check=True,
         )
     except subprocess.CalledProcessError as e:
-        # Try fallback: maybe base_ref was provided as a remote ref
+        # Fallback: maybe base_ref was provided as a remote ref
         try:
             result = subprocess.run(
                 ["git", "diff", "--name-only", base_ref, "HEAD"],
@@ -376,7 +396,76 @@ def emit_output(name: str, value: str) -> None:
         print(f"::{name}::{value}")
 
 
+def run_check(
+    claude_md_path: str,
+    knowledge_dir: str,
+    base_ref: str,
+) -> dict:
+    """Core drift check, I/O-free apart from reading the repo state.
+
+    Returns a dict with:
+        status   — 'no_claude_md' | 'no_mapping' | 'no_changes' | 'checked'
+        report   — markdown-formatted human report
+        violations    — list of violation dicts (only when status='checked')
+        mapping_count — int
+    Both env-var and CLI entry points consume this same shape.
+    """
+    claude_md = Path(claude_md_path)
+    if not claude_md.exists():
+        return {
+            "status": "no_claude_md",
+            "report": (
+                f"⚠️ Living Docs drift check skipped — `{claude_md_path}` "
+                "not found in this repository."
+            ),
+            "violations": [],
+            "mapping_count": 0,
+        }
+
+    # Canonical: read each article's `affects:` frontmatter.
+    frontmatter_mapping = parse_articles_affects(knowledge_dir)
+    # Legacy fallback: hand-edited table in CLAUDE.md (kept for adopters
+    # mid-migration; will eventually go away once frontmatter coverage is
+    # complete in their repo).
+    legacy_mapping = parse_article_mapping(claude_md.read_text(encoding="utf-8"))
+    mapping = frontmatter_mapping + legacy_mapping
+
+    if not mapping:
+        return {
+            "status": "no_mapping",
+            "report": (
+                "ℹ️ Living Docs drift check found no article-mapping (no "
+                f"`affects:` frontmatter under `{knowledge_dir}/`, and no "
+                f"mapping table in `{claude_md_path}`). Either the project "
+                "hasn't started writing articles yet (brownfield retrofit, "
+                "early days) or the formats aren't recognized. No "
+                "violations reported."
+            ),
+            "violations": [],
+            "mapping_count": 0,
+        }
+
+    changed_files = get_changed_files(base_ref)
+    if not changed_files:
+        return {
+            "status": "no_changes",
+            "report": "✅ No files changed; nothing to check.",
+            "violations": [],
+            "mapping_count": len(mapping),
+        }
+
+    violations = check_drift(mapping, changed_files, knowledge_dir)
+    report = format_report(violations, len(mapping))
+    return {
+        "status": "checked",
+        "report": report,
+        "violations": violations,
+        "mapping_count": len(mapping),
+    }
+
+
 def main() -> int:
+    """GitHub Action entry — env-var driven, emits to GITHUB_OUTPUT."""
     claude_md_path = os.environ.get("CLAUDE_MD_PATH", "CLAUDE.md")
     knowledge_dir = os.environ.get("KNOWLEDGE_DIR", "knowledge")
     base_ref = (
@@ -388,60 +477,72 @@ def main() -> int:
         os.environ.get("FAIL_ON_VIOLATION", "true").strip().lower() == "true"
     )
 
-    claude_md = Path(claude_md_path)
-    if not claude_md.exists():
+    if not Path(claude_md_path).exists():
         print(
             f"::error::CLAUDE.md not found at {claude_md_path}. "
             "Skipping drift check (no mapping to verify against).",
             file=sys.stderr,
         )
-        emit_output("violations", "0")
-        emit_output(
-            "report",
-            f"⚠️ Living Docs drift check skipped — `{claude_md_path}` not "
-            "found in this repository.",
-        )
-        return 0
 
-    # Canonical: read each article's `affects:` frontmatter.
-    frontmatter_mapping = parse_articles_affects(knowledge_dir)
-    # Legacy fallback: hand-edited table in CLAUDE.md (kept for adopters
-    # mid-migration; will eventually go away once frontmatter coverage is
-    # complete in their repo).
-    legacy_mapping = parse_article_mapping(claude_md.read_text(encoding="utf-8"))
-    mapping = frontmatter_mapping + legacy_mapping
+    result = run_check(claude_md_path, knowledge_dir, base_ref)
+    emit_output("violations", str(len(result["violations"])))
+    emit_output("report", result["report"])
+    print(result["report"])
 
-    if not mapping:
-        emit_output("violations", "0")
-        emit_output(
-            "report",
-            "ℹ️ Living Docs drift check found no article-mapping (no "
-            "`affects:` frontmatter under `"
-            f"{knowledge_dir}/`, and no mapping table in "
-            f"`{claude_md_path}`). Either the project hasn't started "
-            "writing articles yet (brownfield retrofit, early days) or "
-            "the formats aren't recognized. No violations reported.",
-        )
-        return 0
+    if result["violations"] and fail_on_violation:
+        return 1
+    return 0
 
-    changed_files = get_changed_files(base_ref)
-    if not changed_files:
-        emit_output("violations", "0")
-        emit_output("report", "✅ No files changed; nothing to check.")
-        return 0
 
-    violations = check_drift(mapping, changed_files, knowledge_dir)
-    report = format_report(violations, len(mapping))
+def cli_main(argv: list[str] | None = None) -> int:
+    """Local CLI entry — argparse driven; print-only, no GITHUB_OUTPUT.
 
-    emit_output("violations", str(len(violations)))
-    emit_output("report", report)
+    Mirrors the GH Action's logic exactly so adopters can run the same
+    check at commit time as runs at PR time. Local enforcement catches
+    drift before push; the Action catches it if local was skipped or
+    the contributor doesn't have the hook installed.
+    """
+    import argparse
 
-    print(report)
+    parser = argparse.ArgumentParser(
+        prog="drift-check",
+        description=(
+            "Living-doc drift check — verify that code changes touch the "
+            "matching knowledge article(s). Same logic as the GitHub Action; "
+            "intended for local pre-commit hooks."
+        ),
+    )
+    parser.add_argument("--claude-md", default="CLAUDE.md",
+                        help="path to CLAUDE.md (default: CLAUDE.md)")
+    parser.add_argument("--knowledge-dir", default="knowledge",
+                        help="path to knowledge/ directory (default: knowledge)")
+    parser.add_argument("--base-ref", default=None,
+                        help="git ref to diff against (default: main, or "
+                             "$BASE_REF / $GITHUB_BASE_REF if set)")
+    parser.add_argument("--warn-only", action="store_true",
+                        help="exit 0 even if violations are found "
+                             "(default: exit 1 on violations)")
+    args = parser.parse_args(argv)
 
-    if violations and fail_on_violation:
+    base_ref = (
+        args.base_ref
+        or os.environ.get("BASE_REF")
+        or os.environ.get("GITHUB_BASE_REF")
+        or "main"
+    )
+
+    result = run_check(args.claude_md, args.knowledge_dir, base_ref)
+    print(result["report"])
+
+    if result["violations"] and not args.warn_only:
         return 1
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Detect entry: GitHub Actions env exposes GITHUB_OUTPUT; locally we
+    # use argv. Heuristic — explicit env wins; otherwise treat extra
+    # argv as CLI args.
+    if os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("GITHUB_OUTPUT"):
+        sys.exit(main())
+    sys.exit(cli_main())

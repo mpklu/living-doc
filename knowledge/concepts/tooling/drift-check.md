@@ -7,6 +7,8 @@ status: thin
 affects:
   - 'actions/drift-check/drift_check.py'
   - 'actions/drift-check/action.yml'
+  - 'scripts/drift-check'
+  - 'templates/hooks/**'
 load_bearing: true
 references:
   - concepts/methodology/affects-globs.md
@@ -21,9 +23,33 @@ at PR-review time. This article captures how it works internally —
 the design decisions, edge cases, and what would surprise a future
 contributor reading the source.
 
+## Library split — three entry points, one core
+
+`run_check(claude_md_path, knowledge_dir, base_ref)` is the I/O-free
+core. It returns a dict with `status`, `report`, `violations`,
+`mapping_count`. Two thin wrappers consume it:
+
+- **`main()`** — GitHub Action entry. Reads env vars
+  (`CLAUDE_MD_PATH`, `KNOWLEDGE_DIR`, `BASE_REF`, `FAIL_ON_VIOLATION`),
+  emits `violations` + `report` to `$GITHUB_OUTPUT`, prints the
+  report, exits 1 on violations when `FAIL_ON_VIOLATION=true`.
+- **`cli_main(argv)`** — local CLI entry. Parses args via argparse
+  (`--claude-md`, `--knowledge-dir`, `--base-ref`, `--warn-only`),
+  prints the report, exits 1 on violations unless `--warn-only`.
+
+The `__main__` block dispatches: `GITHUB_ACTIONS=true` (or
+`GITHUB_OUTPUT` set) → `main()`; otherwise → `cli_main()`. Both
+behaviours from one file means both surfaces stay in sync as the
+core evolves.
+
+The repo's `scripts/drift-check` is a thin Python wrapper that walks
+up to the repo root, adds `actions/drift-check/` to `sys.path`, and
+calls `cli_main()`. Lets adopters invoke the check from any
+directory in their repo without installing a package.
+
 ## Two mapping sources, merged
 
-`main()` builds the article-mapping by union:
+`run_check` builds the article-mapping by union:
 
 1. **`parse_articles_affects(knowledge_dir)`** — walks
    `knowledge/**/*.md`, reads each article's YAML frontmatter, extracts

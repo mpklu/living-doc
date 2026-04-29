@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Husky pre-commit hook for the living-docs drift check.
+# Copy to .husky/pre-commit in your project and `chmod +x`.
+#
+# Diffs the working tree against the last commit so the check sees
+# the changes about to be committed.
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+scripts/drift-check --base-ref HEAD || exit 1

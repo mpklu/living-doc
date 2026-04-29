@@ -37,21 +37,31 @@ Both layers consume the same article-mapping source (`affects:`
 frontmatter, or legacy CLAUDE.md table). Same logic, two firing
 points. Drift in either layer means drift in both.
 
-## What ships
+## What ships (2026-04-29)
 
-Three deliverables, none currently in the repo:
+Three deliverables:
 
-1. **CLI mirror of the GH Action.** `python -m living_docs.drift_check`
-   (or equivalent) — same Python, same `drift_check.py` logic, runs
-   without GitHub. Reads `BASE_REF` (default `main`), diffs working
-   tree against it, applies the same check.
+1. **CLI mirror of the GH Action** at `scripts/drift-check`. Wraps the
+   same `drift_check.py` the Action uses. Argparse-driven, prints the
+   report on stdout, exits 1 on violations (or 0 with `--warn-only`).
+   Implementation detail: the wrapper walks up to find the repo root
+   and `sys.path.insert`s the Action's directory, so it works without
+   installing a package.
 2. **Pre-commit hook templates** under `templates/hooks/`:
-   `pre-commit-config.yaml` (for the [pre-commit] framework),
-   `husky.config.js`, `lefthook.yml`. Adopters drop in whichever
-   matches their stack.
-3. **Adoption-guide updates.** Both guides should say "wire in the
-   local hook; the PR Action is the safety net." Today they only
-   mention the Action.
+   - `pre-commit-config.yaml` (for the [pre-commit] framework)
+   - `husky-pre-commit` (Husky shell hook)
+   - `lefthook.yml` (Lefthook config)
+   - `README.md` with installation notes for each, plus guidance on
+     `--base-ref` choice (`HEAD` for pre-commit, `HEAD~1` for
+     post-commit, `origin/main` for branch-wide).
+3. **Library split inside `drift_check.py`.** A new I/O-free `run_check()`
+   takes paths + base ref, returns a result dict. Both `main()`
+   (env-driven, GH Action) and `cli_main()` (argparse-driven) call
+   into it. Same logic, two surfaces. See
+   `concepts/tooling/drift-check.md`.
+
+Adoption-guide updates remain pending; will land when the guides are
+next touched (per "document on touch, not on inventory").
 
 [pre-commit]: https://pre-commit.com
 

@@ -1,0 +1,10 @@
+# Lefthook integration for the living-docs drift check.
+# See https://github.com/evilmartians/lefthook for installation.
+#
+# Drop into your project's `lefthook.yml` (or merge with existing) and
+# run `lefthook install` once.
+
+pre-commit:
+  commands:
+    drift-check:
+      run: scripts/drift-check --base-ref HEAD

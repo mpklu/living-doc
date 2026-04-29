@@ -71,8 +71,10 @@ in `actions/drift-check/drift_check.py`):
 3. Use the union of A + B for the actual check.
 
 The matcher also now supports `**` recursion natively (was previously
-fnmatch-only, which collapsed `**` to `*`). See
-`concepts/tooling/drift-check.md` for the implementation details.
+fnmatch-only, which collapsed `**` to `*`). The `drift_check.py`
+module is now split internally — a core `run_check()` plus thin
+wrappers for the GH Action and local CLI. Implementation details
+in `concepts/tooling/drift-check.md`.
 
 Adopters can migrate incrementally: add `affects:` to articles when
 they're touched anyway (per the same-task rule), let the table shrink
