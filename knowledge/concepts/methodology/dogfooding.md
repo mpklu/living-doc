@@ -7,7 +7,6 @@ status: thin
 affects:
   - 'CLAUDE.md'
   - 'README.md'
-  - 'knowledge/index.md'
 load_bearing: true
 ---
 

@@ -90,12 +90,19 @@ methodology needs to function:
 - `status` — drift triage; `thin` articles need lighter scrutiny than
   `mature` ones because they're known to be incomplete.
 
-## What's deferred
+## Validator (shipped 2026-04-29)
 
-A small validator CLI (`scripts/validate-articles`) that checks every
-file's frontmatter against the JSON Schema and flags missing fields,
-unknown `area:` values, broken `references:`, etc. Will land alongside
-the local drift-check CLI (see `local-vs-pr-enforcement.md`).
+`scripts/validate-articles` walks `knowledge/**/*.md` and verifies
+each article's frontmatter against the schema. Catches missing
+required fields, unknown enum values, malformed dates, and broken
+`references:` links (the referenced article must exist on disk).
+Implementation in `actions/drift-check/validate_articles.py`; design
+notes in `concepts/tooling/validate-articles.md`.
+
+Distinct from the drift checker: validate-articles asks "is each
+article's metadata well-formed?"; drift-check asks "did the
+contributor update the right article when they changed mapped
+code?". Both run zero-deps.
 
 ## Files
 

@@ -28,6 +28,7 @@ touched.
 | Article | Covers | Updated |
 | --- | --- | --- |
 | [drift-check](concepts/tooling/drift-check.md) | `drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback | 2026-04-29 |
+| [validate-articles](concepts/tooling/validate-articles.md) | Frontmatter schema validator: hand-rolled YAML parser, cross-reference check, schema-as-contract caveat | 2026-04-29 |
 
 ## Connections
 
