@@ -122,6 +122,26 @@ A single sentence the user can paste verbatim. The next session
 reads CLAUDE.md (loaded automatically) plus the handoff doc, and
 has full context.
 
+### Discoverability — closing the loop
+
+The handoff is useless if the next session doesn't know to read it.
+Two complementary mechanisms:
+
+1. **CLAUDE.md points at the convention.** Every adopter's CLAUDE.md
+   should include a "Session continuity" paragraph telling the next
+   session: "at session start, check for the most recent
+   `docs/reports/*-session-handoff.md` (or whatever path the project
+   chose) and read it before doing anything else." CLAUDE.md is
+   auto-loaded; that pointer is what makes the handoff findable.
+2. **The next-session opener prompt names the handoff explicitly.**
+   E.g., "Continue from `docs/reports/2026-04-29-…-session-handoff.md`."
+   Belt-and-braces — even if the user forgets to paste the opener,
+   CLAUDE.md's pointer still surfaces the handoff.
+
+The skill should ensure both mechanisms are in place: when generating
+the handoff brief, also verify CLAUDE.md has the Session continuity
+pointer, and add it if missing (one-time per repo).
+
 ## Why this lives in LIVING_DOC
 
 Three reasons:
@@ -158,15 +178,3 @@ Three reasons:
 - `LIVING_DOCS_OVERVIEW.md` — when next touched, add a "Session
   handoff" section pointing at the skill
 
-## Origin
-
-This article was written 2026-04-29 at the end of a long session
-(mp-catalog buildout in mira + LIVING_DOC bundle + tooling vendor)
-where the user observed: "we have worked on this session for a long
-time. Context is huge, not efficient to continue. Think it's a good
-idea to create a SKILL that helps facilitate such a session
-transfer?"
-
-Yes. This is the design seed. Implementation lands when someone
-picks it up in a future session — at which point this article's
-`affects:` will guide the same-task touch.
