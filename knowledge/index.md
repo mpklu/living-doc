@@ -22,6 +22,7 @@ touched.
 | [affects-globs](concepts/methodology/affects-globs.md) | Code↔article mapping via `affects:` frontmatter; auto-generated table | 2026-04-29 |
 | [local-vs-pr-enforcement](concepts/methodology/local-vs-pr-enforcement.md) | Layered defense: local pre-commit + PR Action; same logic, two firing points | 2026-04-29 |
 | [procedural-vs-principle](concepts/methodology/procedural-vs-principle.md) | Same-task rule expressed as a checklist + red-flag phrases, not just principle | 2026-04-29 |
+| [session-handoff](concepts/methodology/session-handoff.md) | Bridging context boundaries; planned `skills/session-handoff/` skill that captures cursor + open items at session-end | 2026-04-29 |
 
 ### `tooling/` — internals
 
