@@ -27,6 +27,13 @@ Usage:
     check-links                          # human-readable report
     check-links --json                   # machine-readable JSON
     check-links --knowledge-dir docs/kb  # alt knowledge dir
+    check-links --exclude 'log/*'        # skip files (glob, relative to
+                                         # the knowledge dir; repeatable)
+
+`--exclude` exists for append-only surfaces like log archives: their
+entries are frozen narrative, so retro-editing them for link hygiene
+would contradict append-only — exclude them instead. Excluded files
+still *count* as wikilink targets; they're just not scanned.
 
 Exits 1 if any link is broken or ambiguous; 0 otherwise.
 """
@@ -34,6 +41,7 @@ Exits 1 if any link is broken or ambiguous; 0 otherwise.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import re
 import sys
@@ -157,7 +165,7 @@ def check_file(
     return problems
 
 
-def check_repo(knowledge_dir: str) -> dict:
+def check_repo(knowledge_dir: str, excludes: list[str] | None = None) -> dict:
     knowledge_root = Path(knowledge_dir)
     if not knowledge_root.is_dir():
         return {
@@ -167,7 +175,12 @@ def check_repo(knowledge_dir: str) -> dict:
         }
     stem_index = build_article_index(knowledge_root)
     problems: list[dict] = []
-    files = sorted(knowledge_root.rglob("*.md"))
+    files = []
+    for article in sorted(knowledge_root.rglob("*.md")):
+        rel = article.relative_to(knowledge_root).as_posix()
+        if any(fnmatch.fnmatch(rel, pat) for pat in (excludes or [])):
+            continue
+        files.append(article)
     for article in files:
         problems.extend(check_file(article, stem_index, knowledge_root))
     return {
@@ -182,10 +195,14 @@ def cli_main(argv: list[str] | None = None) -> int:
         description="Verify wikilinks and relative links in knowledge/ resolve."
     )
     ap.add_argument("--knowledge-dir", default="knowledge")
+    ap.add_argument("--exclude", action="append", default=[],
+                    help="glob (relative to the knowledge dir) of files to "
+                         "skip, e.g. 'log/*' for append-only archives; "
+                         "repeatable")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
 
-    result = check_repo(args.knowledge_dir)
+    result = check_repo(args.knowledge_dir, args.exclude)
     if args.json:
         print(json.dumps(result, indent=2))
         return 1 if (result["fatal"] or result["problems"]) else 0

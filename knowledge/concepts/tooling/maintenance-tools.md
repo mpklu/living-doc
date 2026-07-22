@@ -41,7 +41,7 @@ failure so every tool is CI-able.
 
 | Tool | Job | Failure it prevents |
 | --- | --- | --- |
-| `check-links` | Verify `[[wikilinks]]` (unique-stem or path-suffix resolution) and relative markdown links resolve; code fences/inline code excluded; ambiguous wikilinks are errors too | Renamed/deleted files leaving silent dangling references |
+| `check-links` | Verify `[[wikilinks]]` (unique-stem or path-suffix resolution) and relative markdown links resolve; code fences/inline code excluded; ambiguous wikilinks are errors too; `--exclude 'log/*'` skips append-only surfaces (their entries are frozen narrative — exclude, don't retro-edit; excluded files still count as link *targets*) | Renamed/deleted files leaving silent dangling references |
 | `build-index` | Regenerate `index.md` article tables from frontmatter inside `<!-- build-index:begin dir=… -->` markers; `description:` fills "Covers" (falls back to `title:`); `--check` for CI | Hand-maintained index rows drifting from article frontmatter |
 | `bump-updated` | Set `updated:` to today on given/`--staged` articles; `--check` mode for pre-commit | Forgotten date bumps silently corrupting drift-sweep ordering |
 | `sweep-report` | The N oldest articles by `updated:` (optional `--area`), i.e. the drift-sweep worklist, generated not reasoned | Sweep sessions spending effort finding what to sweep instead of sweeping |

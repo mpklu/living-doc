@@ -11,7 +11,7 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 ## [Unreleased]
 
 ### Added — maintenance tooling (from field adoption of a ~100-article production knowledge hub)
-- `scripts/check-links` (+ `actions/drift-check/check_links.py`) — verifies `[[wikilinks]]` and relative markdown links resolve; ambiguous wikilinks are errors; code fences/inline code excluded.
+- `scripts/check-links` (+ `actions/drift-check/check_links.py`) — verifies `[[wikilinks]]` and relative markdown links resolve; ambiguous wikilinks are errors; code fences/inline code excluded; repeatable `--exclude` glob for append-only surfaces like log archives (added during the first re-adoption run, which surfaced 49 real/legacy link problems in the field repo).
 - `scripts/build-index` (+ `build_index.py`) — regenerates `index.md` article tables from frontmatter inside `<!-- build-index:begin dir=… -->` markers; `--check` mode for CI. This repo's own `knowledge/index.md` is now generated.
 - `scripts/bump-updated` (+ `bump_updated.py`) — sets `updated:` to today on given/`--staged` articles; `--check` mode for pre-commit gating.
 - `scripts/sweep-report` (+ `sweep_report.py`) — drift-sweep worklist: the N oldest articles by `updated:`.
