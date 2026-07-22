@@ -11,6 +11,8 @@ affects:
   - 'actions/drift-check/bump_updated.py'
   - 'actions/drift-check/sweep_report.py'
   - 'actions/drift-check/roll_log.py'
+  - 'actions/drift-check/provenance_report.py'
+  - 'scripts/provenance-report'
   - 'scripts/check-links'
   - 'scripts/build-index'
   - 'scripts/bump-updated'
@@ -46,6 +48,7 @@ failure so every tool is CI-able.
 | `bump-updated` | Set `updated:` to today on given/`--staged` articles; `--check` mode for pre-commit | Forgotten date bumps silently corrupting drift-sweep ordering |
 | `sweep-report` | The N oldest articles by `updated:` (optional `--area`), i.e. the drift-sweep worklist, generated not reasoned | Sweep sessions spending effort finding what to sweep instead of sweeping |
 | `roll-log` | Move log entries older than the keep-window into monthly `knowledge/log/YYYY-MM.md` archives; **conservation-checked** (aborts if any entry text would be lost); preserves the active log's own entry order (newest-first and oldest-first both supported) | An unboundedly growing active log; entries lost during manual archiving |
+| `provenance-report` | Claim-provenance tag coverage (per-article `code/bench/field/reported/inferred` counts; flags `load_bearing` articles with zero tags) and `--worklist` — every inferred/reported claim in a load-bearing article, i.e. the generated input for verification/refutation sweeps. Semantics: [[claim-provenance]] | Tags rotting into decoration; verification effort spent re-reading everything instead of targeting ungraded claims |
 
 ## Design notes
 

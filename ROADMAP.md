@@ -178,6 +178,18 @@ these remain open, roughly ordered by observed pain:
 - **"Verify before write"** — the guides say "real data beats the article"
   for *reading*; extend it to *writing*: claims about code behaviour are
   verified against the code in the same task that documents them.
+  *(Partially seeded 2026-07-22 via claim provenance, below.)*
+- **Claim provenance** — inline tags grading how each load-bearing claim
+  was verified (`code`/`bench`/`field`/`reported`/`inferred`) so trust is
+  calibrated per claim, not per article. **Seeded 2026-07-22:**
+  `concepts/methodology/claim-provenance.md` + `scripts/provenance-report`
+  (coverage + verification worklist). Remaining: field-validate in a
+  production adoption, then fold into the adoption guides and
+  `templates/*/CLAUDE.md`; tie `thin → mature` promotion to tag coverage.
+- **Adversarial verification sweeps** — periodic runs where an agent tries
+  to *refute* load-bearing claims against code (stronger than passive
+  staleness scanning); consumes the provenance worklist as its target
+  list.
 
 ## Risk register
 

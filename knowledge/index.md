@@ -24,6 +24,7 @@ edit the frontmatter, not the tables. CI-checkable with
 | Article | Covers | Updated |
 | --- | --- | --- |
 | [affects-globs](concepts/methodology/affects-globs.md) | Code↔article mapping via `affects:` frontmatter; auto-generated table | 2026-04-29 |
+| [claim-provenance](concepts/methodology/claim-provenance.md) | Inline provenance tags — *(code: path:line)* · *(bench: date)* · *(field: incident)* · *(reported: who)* · *(inferred)* — so readers (human or agent) can calibrate trust per claim, not per article. The fix for AI-written docs' worst failure mode: confident-sounding inference read as fact later | 2026-07-22 |
 | [dogfooding](concepts/methodology/dogfooding.md) | Why this repo applies its own methodology; what's different about a meta-repo | 2026-04-29 |
 | [frontmatter-as-source-of-truth](concepts/methodology/frontmatter-as-source-of-truth.md) | Article metadata schema; canonical home for `affects`, `status`, `load_bearing` | 2026-04-29 |
 | [local-vs-pr-enforcement](concepts/methodology/local-vs-pr-enforcement.md) | Layered defense: local pre-commit + PR Action; same logic, two firing points | 2026-04-29 |

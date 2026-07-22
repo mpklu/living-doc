@@ -19,6 +19,7 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 - Optional `description:` frontmatter field (schema + validator): one-line retrieval hook; fills the "Covers" column of generated index tables.
 - `knowledge/concepts/tooling/maintenance-tools.md` and `knowledge/concepts/methodology/scripts-over-reasoning.md` — the tools' internals and the principle behind them.
 - `templates/hooks/` — companion pre-commit hooks for `bump-updated --check` and `check-links`.
+- **Claim provenance** (seeded as an optional pattern): inline tags grading how each load-bearing claim was verified — `*(code: path:line)*` · `*(bench: date)*` · `*(field: incident)*` · `*(reported: who)*` · `*(inferred)*` — so readers calibrate trust per claim. Design: `knowledge/concepts/methodology/claim-provenance.md`; tooling: `scripts/provenance-report` (+ `provenance_report.py`) — per-article tag coverage and `--worklist` (every inferred/reported claim in a `load_bearing` article = the generated verification worklist). Glossary entry + a pointer in `LIVING_DOCS_OVERVIEW.md` decision rule 4; guides/templates fold-in deferred until field-validated.
 
 ### Changed
 - `knowledge/index.md` article tables are generated (`build-index`), with per-article summaries migrated verbatim into each article's `description:` frontmatter (single source).

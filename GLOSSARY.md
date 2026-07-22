@@ -12,6 +12,10 @@ A table inside `CLAUDE.md` of the form: _"When you change X, update article Y."_
 
 The first principle of the methodology. When the agent makes a code change that affects behaviour, config, or architecture, the corresponding article gets written **in the same task** — even if placement, naming, or scope is uncertain. An imperfect article the user can review is strictly better than a correctly-placed gap. Missing context is unrecoverable; refining costs minutes.
 
+### Claim provenance
+
+Inline tags grading how a load-bearing claim was verified — `*(code: path:line)*` · `*(bench: date)*` · `*(field: incident)*` · `*(reported: who)*` · `*(inferred)*` — placed right after the claim. Lets a reader (human or AI) calibrate trust per claim instead of per article, and gives verification sweeps a generated worklist (`scripts/provenance-report --worklist`). The failure mode it closes: an agent's confident-sounding inference being read as fact months later. See `knowledge/concepts/methodology/claim-provenance.md`.
+
 ### `CLAUDE.md`
 
 The agent-instruction file at the project root. Contains the same-task rule, the article-mapping table, and any project-specific conventions. Read by the AI agent on every interaction. Lower-scope `CLAUDE.md` files (repo-level) take precedence over higher-scope ones (workspace-level).
