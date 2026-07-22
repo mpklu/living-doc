@@ -1,8 +1,9 @@
 ---
 title: validate-articles — internals
+description: "Frontmatter schema validator: hand-rolled YAML parser, cross-reference check, schema-as-contract caveat"
 type: concept
 area: tooling
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   - 'actions/drift-check/validate_articles.py'
@@ -71,6 +72,9 @@ Per `schemas/article-frontmatter.schema.json`:
 - `type` ∈ `{concept, connection, meta}`.
 - `status` ∈ `{thin, mature, deprecated}`.
 - `updated` matches `^\d{4}-\d{2}-\d{2}$`.
+- `description` (optional, added 2026-07-22) is a non-empty string of
+  ≤ 500 chars if present — it's the one-line retrieval hook that
+  `build-index` puts in the "Covers" column, not a second article body.
 - `load_bearing` is boolean if present.
 - `affects` is a list of non-empty strings if present.
 - `references` is a list of strings ending in `.md`, AND each

@@ -1,5 +1,6 @@
 ---
 title: Session handoff — bridging context boundaries
+description: "Bridging context boundaries; planned `skills/session-handoff/` skill that captures cursor + open items at session-end"
 type: concept
 area: methodology
 updated: 2026-04-29

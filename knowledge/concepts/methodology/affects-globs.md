@@ -1,5 +1,6 @@
 ---
 title: affects globs — code↔article mapping
+description: "Code↔article mapping via `affects:` frontmatter; auto-generated table"
 type: concept
 area: methodology
 updated: 2026-04-29

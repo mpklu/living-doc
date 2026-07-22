@@ -137,6 +137,48 @@ This roadmap is ambitious for a single-person project. If time pressure forces c
 
 ---
 
+## Candidate refinements from field adoption (2026-07)
+
+Distilled from ~3 months of production use on a ~100-article knowledge hub
+(brownfield retrofit, multi-repo product family). The mechanical items
+shipped as the maintenance-tool suite (see `CHANGELOG.md` [Unreleased]);
+these remain open, roughly ordered by observed pain:
+
+- **Two registers in one article** — a required compact `## Facts` block
+  (key-value atoms: paths, ports, codes, invariants) with prose *why*
+  below. Agents grep the facts; humans read the prose. One source, no
+  AI-facing distillate to drift. Enforceable via `validate-articles`.
+- **Hub articles as a documented type** — thin consolidating "start here"
+  hubs (no `affects:`, link out to detail articles that stay
+  source-of-truth), plus a soft article-size threshold that triggers
+  "split or hub it." Field data point: 40–60KB articles became costly for
+  humans and agents alike; a hub fixed navigation without duplication.
+- **3-tier topology** — T1 durable `knowledge/` · T2 reusable operational
+  assets (runbooks, delivery bundles, field scripts) · T3 per-engagement
+  working folders (may hold sensitive data; ephemeral). Three seam rules:
+  never hand-copy T2 assets into T3 (reference the canonical path);
+  product-repo commits name the touched article (a `Knowledge:` trailer)
+  because drift-check can't see other repos; closing a T3 engagement
+  harvests durable learnings up into T1 before archiving.
+- **Stale-date flagger** — script that flags past dates appearing near
+  future-tense phrasing ("by then", "retires", "deadline", "upcoming").
+  Field incident: a retirement date sat future-tense in 4+ articles for
+  three weeks after it passed.
+- **`affects:`-glob liveness** — each glob should match ≥1 real path in
+  configured source roots; catches code renames orphaning the mapping.
+- **Cross-repo trailer hook** — commit-msg hook for *product* repos: if
+  the diff matches any knowledge-repo `affects:` glob, require a
+  `Knowledge: <article>` trailer. Closes the single biggest enforcement
+  gap (the same-task rule outside the knowledge repo rests on discipline).
+- **Scaffolds** — `new-article` / `new-log-entry` generators emitting
+  schema-valid skeletons, so frontmatter shape is never re-derived.
+- **Secret/PHI lint for T1/T2** — pattern-based check (credentials,
+  patient-identifying content) where "keep it out" is currently enforced
+  only by vigilance and a slip is unrecoverable once pushed.
+- **"Verify before write"** — the guides say "real data beats the article"
+  for *reading*; extend it to *writing*: claims about code behaviour are
+  verified against the code in the same task that documents them.
+
 ## Risk register
 
 | Risk | Likelihood | Impact | Mitigation |

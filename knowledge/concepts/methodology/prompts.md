@@ -1,5 +1,6 @@
 ---
 title: Paste-able prompts as methodology surface
+description: "Why we ship paste-able Claude prompts under `templates/prompts/`; what makes a good one; drift risk via the schema"
 type: concept
 area: methodology
 updated: 2026-04-29

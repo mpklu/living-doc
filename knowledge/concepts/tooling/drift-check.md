@@ -1,5 +1,6 @@
 ---
 title: drift-check — internals
+description: "`drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback"
 type: concept
 area: tooling
 updated: 2026-04-29

@@ -1,5 +1,6 @@
 ---
 title: Frontmatter as source of truth
+description: "Article metadata schema; canonical home for `affects`, `status`, `load_bearing`"
 type: concept
 area: methodology
 updated: 2026-04-29

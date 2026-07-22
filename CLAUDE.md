@@ -90,6 +90,7 @@ frontmatter once the next-phase bundle ships
 | `LIVING_DOCS_OVERVIEW.md`, `*ADOPTION_GUIDE.md`, `GLOSSARY.md` (methodology surface) | Article in `knowledge/concepts/methodology/` matching the decision |
 | `templates/**` | Article in `knowledge/concepts/methodology/` (template content reflects methodology decisions) |
 | `actions/drift-check/drift_check.py` | `knowledge/concepts/tooling/drift-check.md` (write on touch) |
+| `actions/drift-check/{check_links,build_index,bump_updated,sweep_report,roll_log}.py`, `scripts/{check-links,build-index,bump-updated,sweep-report,roll-log}` | `knowledge/concepts/tooling/maintenance-tools.md` |
 | `skills/living-docs/SKILL.md` | `knowledge/concepts/tooling/skill.md` (write on touch) |
 
 ### Where new articles go

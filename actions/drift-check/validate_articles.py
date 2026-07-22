@@ -127,6 +127,15 @@ def validate_frontmatter(
             errors.append(
                 f"updated '{data['updated']}' must match YYYY-MM-DD"
             )
+    if "description" in data:
+        desc = data["description"]
+        if not isinstance(desc, str) or not desc.strip():
+            errors.append("description must be a non-empty string when present")
+        elif len(desc) > 500:
+            errors.append(
+                "description exceeds 500 chars — it's the index/retrieval "
+                "hook, not the article body"
+            )
     if "load_bearing" in data and not isinstance(data["load_bearing"], bool):
         errors.append("load_bearing must be a boolean")
     if "affects" in data:

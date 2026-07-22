@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Local CLI wrapper: Set updated: frontmatter to today on given/staged knowledge articles.
+
+Implementation lives in actions/drift-check/bump_updated.py (co-located with
+the shared frontmatter parser). Run with --help for usage.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+
+def _find_repo_root(start: Path) -> Path:
+    here = start.resolve()
+    while True:
+        if (here / "actions" / "drift-check" / "bump_updated.py").exists():
+            return here
+        if here.parent == here:
+            break
+        here = here.parent
+    raise SystemExit(
+        "bump-updated: could not locate actions/drift-check/bump_updated.py "
+        "by walking up from this script."
+    )
+
+
+def main() -> int:
+    here = Path(__file__).resolve()
+    repo_root = _find_repo_root(here)
+    sys.path.insert(0, str(repo_root / "actions" / "drift-check"))
+    import bump_updated  # noqa: E402
+    return bump_updated.cli_main(sys.argv[1:])
+
+
+if __name__ == "__main__":
+    sys.exit(main())

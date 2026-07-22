@@ -1,5 +1,6 @@
 ---
 title: install.sh — curl-able adoption installer
+description: "`install/install.sh` internals: bash 3.2+, manifest-driven, atomic per-file write, idempotent re-run, detection bias toward brownfield"
 type: concept
 area: tooling
 updated: 2026-04-29

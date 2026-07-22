@@ -1,5 +1,6 @@
 ---
 title: Dogfooding the methodology
+description: "Why this repo applies its own methodology; what's different about a meta-repo"
 type: concept
 area: methodology
 updated: 2026-04-29

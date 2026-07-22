@@ -12,6 +12,12 @@
       "minLength": 1,
       "description": "Human-readable article title. Shown in knowledge/index.md tables."
     },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "One-line retrieval hook: what the article covers, specific enough that an agent (or the index reader) can decide relevance without opening the article. Fills the 'Covers' column of generated index tables (see build-index); falls back to title when absent. Optional but strongly recommended — field experience shows this is the highest-leverage line in the whole article."
+    },
     "type": {
       "type": "string",
       "enum": ["concept", "connection", "meta"],

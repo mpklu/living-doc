@@ -10,7 +10,19 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 
 ## [Unreleased]
 
-_(no unreleased changes)_
+### Added — maintenance tooling (from field adoption of a ~100-article production knowledge hub)
+- `scripts/check-links` (+ `actions/drift-check/check_links.py`) — verifies `[[wikilinks]]` and relative markdown links resolve; ambiguous wikilinks are errors; code fences/inline code excluded.
+- `scripts/build-index` (+ `build_index.py`) — regenerates `index.md` article tables from frontmatter inside `<!-- build-index:begin dir=… -->` markers; `--check` mode for CI. This repo's own `knowledge/index.md` is now generated.
+- `scripts/bump-updated` (+ `bump_updated.py`) — sets `updated:` to today on given/`--staged` articles; `--check` mode for pre-commit gating.
+- `scripts/sweep-report` (+ `sweep_report.py`) — drift-sweep worklist: the N oldest articles by `updated:`.
+- `scripts/roll-log` (+ `roll_log.py`) — rolls old log entries into monthly `knowledge/log/YYYY-MM.md` archives; conservation-checked (no entry can be silently lost); supports newest-first and oldest-first logs. Ported from the field adoption where it ran in production.
+- Optional `description:` frontmatter field (schema + validator): one-line retrieval hook; fills the "Covers" column of generated index tables.
+- `knowledge/concepts/tooling/maintenance-tools.md` and `knowledge/concepts/methodology/scripts-over-reasoning.md` — the tools' internals and the principle behind them.
+- `templates/hooks/` — companion pre-commit hooks for `bump-updated --check` and `check-links`.
+
+### Changed
+- `knowledge/index.md` article tables are generated (`build-index`), with per-article summaries migrated verbatim into each article's `description:` frontmatter (single source).
+- `ROADMAP.md` — new "Candidate refinements from field adoption (2026-07)" section.
 
 ## [0.1.0] — 2026-04-29
 

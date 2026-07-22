@@ -1,5 +1,6 @@
 ---
 title: Local + PR-time enforcement — layered defense
+description: "Layered defense: local pre-commit + PR Action; same logic, two firing points"
 type: concept
 area: methodology
 updated: 2026-04-29

@@ -82,6 +82,49 @@ options:
 For pre-commit, **`HEAD`** is the right default and what all three
 hook templates above pass.
 
+## Companion hooks: bump-updated and check-links
+
+Two more local checks pair well with the drift check (both live in
+`scripts/`, same copy/symlink approach; see
+`knowledge/concepts/tooling/maintenance-tools.md`):
+
+- **`scripts/bump-updated --staged --check`** — fails the commit if a
+  staged knowledge article's `updated:` isn't today. Fix is one command
+  (`scripts/bump-updated --staged`, then re-stage). Checking rather than
+  auto-mutating keeps the hook side-effect-free.
+- **`scripts/check-links`** — fails the commit if any `[[wikilink]]` or
+  relative link in `knowledge/` is broken or ambiguous (catches renames
+  and deletions the moment they happen, not when a reader hits them).
+- **`scripts/build-index --check`** — fails if generated index tables are
+  stale (fix: `scripts/build-index`, re-stage).
+
+pre-commit framework example (append to the hooks list):
+
+```yaml
+      - id: living-docs-bump-updated
+        name: Living Docs updated: check
+        entry: scripts/bump-updated
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [--staged, --check]
+      - id: living-docs-check-links
+        name: Living Docs link check
+        entry: scripts/check-links
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: living-docs-build-index
+        name: Living Docs index freshness
+        entry: scripts/build-index
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [--check]
+```
+
+(husky/lefthook: add the same three commands as extra lines/commands.)
+
 ## Bypass behaviour
 
 All hook frameworks let contributors bypass with

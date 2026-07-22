@@ -1,5 +1,6 @@
 ---
 title: Procedural compliance — checklist, not principle
+description: "Same-task rule expressed as a checklist + red-flag phrases, not just principle"
 type: concept
 area: methodology
 updated: 2026-04-29
