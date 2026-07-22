@@ -6,8 +6,15 @@ area: methodology
 updated: 2026-04-29
 status: thin
 affects:
-  - 'actions/drift-check/**'
+  # Enforcement pieces only. actions/drift-check/ also co-hosts the
+  # maintenance suite (shared frontmatter parser) — those files belong to
+  # concepts/tooling/maintenance-tools.md, not this article. Narrowed
+  # 2026-07-22 after the broad '**' glob false-flagged a new suite tool.
+  - 'actions/drift-check/drift_check.py'
+  - 'actions/drift-check/validate_articles.py'
+  - 'actions/drift-check/action.yml'
   - 'scripts/drift-check'
+  - 'scripts/validate-articles'
   - 'templates/hooks/**'
 load_bearing: true
 references:
