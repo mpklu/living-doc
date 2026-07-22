@@ -35,6 +35,11 @@ def collect(knowledge_dir: str, area: str | None) -> tuple[list[dict], list[str]
     for path in sorted(root.rglob("*.md")):
         if path.name in ("index.md", "log.md"):
             continue
+        rel_parts = path.relative_to(root).parts
+        # Non-article surfaces: log archives (append-only narrative) and
+        # generated facts files — neither is sweep-orderable.
+        if rel_parts[0] in ("log", "facts"):
+            continue
         fm = parse_frontmatter(path)
         if not fm or "updated" not in fm:
             unparsed.append(str(path))

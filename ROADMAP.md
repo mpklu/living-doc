@@ -144,10 +144,14 @@ Distilled from ~3 months of production use on a ~100-article knowledge hub
 shipped as the maintenance-tool suite (see `CHANGELOG.md` [Unreleased]);
 these remain open, roughly ordered by observed pain:
 
-- **Two registers in one article** — a required compact `## Facts` block
+- **Two registers in one article** — a compact `## Facts` block
   (key-value atoms: paths, ports, codes, invariants) with prose *why*
   below. Agents grep the facts; humans read the prose. One source, no
-  AI-facing distillate to drift. Enforceable via `validate-articles`.
+  AI-facing distillate to drift. **Seeded 2026-07-22** as the facts
+  register: `concepts/methodology/facts-register.md` +
+  `scripts/build-facts` (generated `knowledge/facts/<area>.md`).
+  Remaining: field-validate, then consider a `validate-articles` check
+  and guide/template fold-in.
 - **Hub articles as a documented type** — thin consolidating "start here"
   hubs (no `affects:`, link out to detail articles that stay
   source-of-truth), plus a soft article-size threshold that triggers

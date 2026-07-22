@@ -40,6 +40,10 @@ The brownfield principle: write articles for code paths only when you're about t
 
 A periodic ritual (once a sprint or once a month, ~30 minutes) where someone scans recently-changed code paths against their corresponding articles for contradictions. Catches the cases where the same-task rule slipped. The drift fix is logged in `log.md`.
 
+### Facts register
+
+The read-path layer between the index and article prose: an article's optional `## Facts` section holds atomic, provenance-tagged lookup facts (paths, ports, codes, defaults, invariants); `scripts/build-facts` concatenates them per area into generated `knowledge/facts/<area>.md` files. A needle query loads one small generated surface instead of 20–60KB of prose. Articles remain the single source; generated files carry a sentinel and are never hand-edited. See `knowledge/concepts/methodology/facts-register.md`.
+
 ### First adoption phase
 
 Months 1–3 of adoption, when team buy-in is fragile and the discipline hasn't yet become muscle memory. The agent should be conservative during this phase: don't write speculative articles, do most of the article writing automatically, defer to the user's judgement on edge cases.

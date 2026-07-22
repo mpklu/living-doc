@@ -13,6 +13,8 @@ affects:
   - 'actions/drift-check/roll_log.py'
   - 'actions/drift-check/provenance_report.py'
   - 'scripts/provenance-report'
+  - 'actions/drift-check/build_facts.py'
+  - 'scripts/build-facts'
   - 'scripts/check-links'
   - 'scripts/build-index'
   - 'scripts/bump-updated'
@@ -25,6 +27,17 @@ references:
 ---
 
 # Maintenance tools
+
+## Facts
+
+- **check-links**: `scripts/check-links [--exclude 'log/*']` — wikilinks + relative links resolve; ambiguity = error
+- **build-index**: `scripts/build-index [--check]` — index tables from frontmatter, `<!-- build-index:begin dir=… -->` markers
+- **bump-updated**: `scripts/bump-updated [--staged] [--check] [--date D]` — set `updated:` today
+- **sweep-report**: `scripts/sweep-report [--limit N] [--area A]` — oldest articles by `updated:`; skips `log/` + `facts/`
+- **roll-log**: `scripts/roll-log [--keep-days 14|--keep-since D] [--dry-run]` — monthly archives, conservation-checked
+- **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist
+- **build-facts**: `scripts/build-facts [--check]` — `knowledge/facts/<area>.md` from `## Facts` sections
+- **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
 Five local tools that mechanize the recurring upkeep a knowledge base
 needs as it grows. All five came out of one field adoption (a ~100-article
@@ -49,6 +62,7 @@ failure so every tool is CI-able.
 | `sweep-report` | The N oldest articles by `updated:` (optional `--area`), i.e. the drift-sweep worklist, generated not reasoned | Sweep sessions spending effort finding what to sweep instead of sweeping |
 | `roll-log` | Move log entries older than the keep-window into monthly `knowledge/log/YYYY-MM.md` archives; **conservation-checked** (aborts if any entry text would be lost); preserves the active log's own entry order (newest-first and oldest-first both supported) | An unboundedly growing active log; entries lost during manual archiving |
 | `provenance-report` | Claim-provenance tag coverage (per-article `code/bench/field/reported/inferred` counts; flags `load_bearing` articles with zero tags) and `--worklist` — every inferred/reported claim in a load-bearing article, i.e. the generated input for verification/refutation sweeps. Semantics: [[claim-provenance]] | Tags rotting into decoration; verification effort spent re-reading everything instead of targeting ungraded claims |
+| `build-facts` | Concatenates articles' `## Facts` sections per `area:` into generated `knowledge/facts/<area>.md` (sentinel first line; orphan cleanup; `--check` gate). Semantics: [[facts-register]] | Needle queries paying 20–60KB prose loads for one-line answers |
 
 ## Design notes
 
