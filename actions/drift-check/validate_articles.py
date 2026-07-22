@@ -180,8 +180,13 @@ def validate_repo(knowledge_dir: str) -> dict:
     files_checked = 0
     for article in sorted(knowledge.rglob("*.md")):
         # Skip index.md and log.md by convention — they're not concept
-        # articles and don't need frontmatter.
+        # articles and don't need frontmatter. Likewise log/ archives
+        # (rolled entries, roll-log) and generated facts/ files
+        # (build-facts output carries a sentinel, not frontmatter).
         if article.name in {"index.md", "log.md"}:
+            continue
+        rel_parts = article.relative_to(knowledge).parts
+        if rel_parts[0] in ("log", "facts"):
             continue
         files_checked += 1
         data = parse_frontmatter(article)

@@ -2,6 +2,16 @@
 
 Append-only narrative of changes to `knowledge/`. Newest at top.
 
+## [2026-07-22] tooling | validate-articles skips log/ + facts/ dirs
+
+Caught right after the facts-register commit: the generated
+`knowledge/facts/*.md` files (sentinel, no frontmatter) failed
+frontmatter validation — validate-articles skipped only `index.md` /
+`log.md` by name, not the `log/` archive dir or the new generated
+`facts/` dir. Skipped both by directory, matching sweep-report's rule.
+Lesson repeated from the adoption audit: every new generated surface
+must be walked through ALL existing checkers, not just the new one.
+
 ## [2026-07-22] methodology | facts register — the read path's layer 1 (seeded)
 
 Third pattern from the field review, completing the progressive-disclosure
