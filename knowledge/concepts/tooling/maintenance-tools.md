@@ -19,6 +19,9 @@ affects:
   - 'scripts/check-affects'
   - 'actions/drift-check/check_trailer.py'
   - 'scripts/check-trailer'
+  # hooks README documents the whole tool family now, not just drift-check —
+  # shared ownership with tooling/drift-check.md (multi-article ownership is fine)
+  - 'templates/hooks/**'
   - 'scripts/check-links'
   - 'scripts/build-index'
   - 'scripts/bump-updated'
