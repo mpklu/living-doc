@@ -97,6 +97,8 @@ Two more local checks pair well with the drift check (both live in
   and deletions the moment they happen, not when a reader hits them).
 - **`scripts/build-index --check`** — fails if generated index tables are
   stale (fix: `scripts/build-index`, re-stage).
+- **`scripts/build-facts --check`** — fails if generated `knowledge/facts/`
+  surfaces are stale or orphaned (fix: `scripts/build-facts`, re-stage).
 
 pre-commit framework example (append to the hooks list):
 
@@ -121,9 +123,23 @@ pre-commit framework example (append to the hooks list):
         pass_filenames: false
         always_run: true
         args: [--check]
+      - id: living-docs-build-facts
+        name: Living Docs facts freshness
+        entry: scripts/build-facts
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [--check]
 ```
 
-(husky/lefthook: add the same three commands as extra lines/commands.)
+(husky/lefthook: add the same commands as extra lines/commands.)
+
+**No hook framework?** A single versioned gate script that runs all the
+checks, exec'd from a plain `.git/hooks/pre-commit`, works everywhere with
+zero dependencies — the field adoption ships one as `scripts/pre-commit-gate`
+(with an `--install` mode that writes the two-line git hook). Pair it with
+the same commands in CI: hooks are bypassable by `--no-verify`, CI is the
+safety net.
 
 ## Bypass behaviour
 
