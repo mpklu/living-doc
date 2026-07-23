@@ -43,10 +43,15 @@ PAREN_RE = re.compile(
     r"\*\(((?:code|bench|field|reported|inferred)[^)]*)\)\*"
 )
 # Keywords inside a parenthetical: at the start, or right after a ';'.
-# Anchoring this way keeps evidence text from matching (e.g. the word
-# "code" inside "*(reported: error code list)*" is NOT a keyword).
+# Anchoring keeps evidence text from matching (the word "code" inside
+# "*(reported: error code list)*" is NOT a keyword). Evidence-bearing
+# keywords (code/bench/field/reported) must be followed by ':' — that's
+# the convention, and it rejects prose look-alikes such as
+# "**(code × feeschedule)**" (found in the wild). Only `inferred` may be
+# bare (`*(inferred)*`) or space-continued (`*(inferred from X)*`).
 SEGMENT_KW_RE = re.compile(
-    r"(?:^|;\s*)(code|bench|field|reported|inferred)(?=[:;\s)]|$)"
+    r"(?:^|;\s*)(?:(code|bench|field|reported)(?=\s*:)"
+    r"|(inferred)(?=[:;\s)]|$))"
 )
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
@@ -98,7 +103,10 @@ def scan(knowledge_dir: str) -> list[dict]:
             continue
         for lineno, line in enumerate(masked_lines(text), start=1):
             for pm in PAREN_RE.finditer(line):
-                kws = SEGMENT_KW_RE.findall(pm.group(1))
+                kws = [
+                    m.group(1) or m.group(2)
+                    for m in SEGMENT_KW_RE.finditer(pm.group(1))
+                ]
                 for kind in kws:
                     counts[kind] += 1
                 # Corroborated-claim suppression: a parenthetical that ALSO
