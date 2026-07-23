@@ -32,6 +32,10 @@ A standalone reference article in `knowledge/concepts/{area}/*.md`. Describes _w
 
 A cross-cutting article in `knowledge/connections/*.md`. Describes _how multiple concepts interact_ rather than describing any one of them. The only kind of article that legitimately spans more than a single concept.
 
+### Derivability test
+
+The budget rule for article prose: content a competent agent with the checkouts could re-derive in minutes is a **cache** (keep it thin — facts blocks, code-cite pointers; it carries a recurring invalidation bill and a stale copy is worse than none). Content that would need a bench run, a vendor call, a production incident, or a time machine is the **asset** (rejected alternatives, constraints, negative results, field incidents — zero maintenance cost, appreciating value). See `knowledge/concepts/methodology/what-cache-why-asset.md`.
+
 ### Document on touch
 
 The brownfield principle: write articles for code paths only when you're about to change them — not as a separate inventory effort. Stable, untouched code stays undocumented; that's fine. Articles are written reactively, never proactively, on a brownfield retrofit.

@@ -152,6 +152,10 @@ these remain open, roughly ordered by observed pain:
   `scripts/build-facts` (generated `knowledge/facts/<area>.md`).
   Remaining: field-validate, then consider a `validate-articles` check
   and guide/template fold-in.
+- **What-cache / why-asset** — budget article prose by the derivability
+  test. **Seeded 2026-07-22:** `concepts/methodology/what-cache-why-asset.md`.
+  Gives the refine ritual (below/when specified) its criterion: compression
+  shrinks cache sections toward facts + pointers, never the why.
 - **Hub articles as a documented type** — thin consolidating "start here"
   hubs (no `affects:`, link out to detail articles that stay
   source-of-truth), plus a soft article-size threshold that triggers

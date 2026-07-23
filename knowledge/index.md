@@ -33,6 +33,7 @@ edit the frontmatter, not the tables. CI-checkable with
 | [prompts](concepts/methodology/prompts.md) | Why we ship paste-able Claude prompts under `templates/prompts/`; what makes a good one; drift risk via the schema | 2026-04-29 |
 | [scripts-over-reasoning](concepts/methodology/scripts-over-reasoning.md) | Anything checkable by string/date/path comparison must be a script; AI reasoning is reserved for semantics. The boundary rule that keeps agent effort on judgment instead of bookkeeping | 2026-07-22 |
 | [session-handoff](concepts/methodology/session-handoff.md) | Bridging context boundaries; planned `skills/session-handoff/` skill that captures cursor + open items at session-end | 2026-04-29 |
+| [what-cache-why-asset](concepts/methodology/what-cache-why-asset.md) | Budget article prose by derivability: what-sections are caches of the code (falling value, recurring invalidation bill — keep them thin, pointed, tagged); why-sections are the only record of the non-derivable (rejected alternatives, constraints, negative results, field incidents — zero maintenance, appreciating). The derivability test decides which is which | 2026-07-22 |
 <!-- build-index:end -->
 
 ### `tooling/` — internals
