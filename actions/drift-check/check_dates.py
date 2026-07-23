@@ -60,10 +60,18 @@ MONTH_YEAR_RE = re.compile(
     r"Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|"
     r"Dec(?:ember)?)\.?\s+(\d{4})\b"
 )
+# Marker list pruned on the first real-corpus run (98 articles, 39 hits,
+# most noise): "ships/shipping" fires on the CONTAINS sense ("installer
+# ships no runtime"), "before"/"pre-" on correct historical prose
+# ("Before its 2026-06-30 retirement…"), "not yet"/"to be Xed" on
+# attribution dates ("read on 2026-04-29 — not yet calibrated"). Kept
+# markers are the ones that actually signaled the field incident and the
+# release-ETA class. Quoted speech ("Cole's verbatim: 'We will…'")
+# remains a known noise source — this is a sweep tool; judgment applies.
 FUTURE_MARKER_RE = re.compile(
     r"(?i)\b(will|expected|expects|upcoming|planned|plans to|deadline|due|"
-    r"retires|retiring|ships|shipping|scheduled|eta|forthcoming|"
-    r"by then|must \w+(?: \w+){0,3} by|before|pre-|not yet|to be \w+ed)\b"
+    r"retires|retiring|scheduled|eta|forthcoming|"
+    r"by then|must \w+(?: \w+){0,3} by)\b"
 )
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
