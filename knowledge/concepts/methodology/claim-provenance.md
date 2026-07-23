@@ -83,10 +83,15 @@ Machine-readable by one regex — `\*\((code|bench|field|reported|inferred)[:)]`
 
 ## What it enables
 
-- **Verification worklists, generated not reasoned:** every `*(inferred)*`
-  and `*(reported:)*` in a `load_bearing: true` article is a candidate
-  for the next verification pass — `scripts/provenance-report --worklist`
-  emits exactly that list ([[maintenance-tools]], [[scripts-over-reasoning]]).
+- **Verification worklists, generated not reasoned:** every
+  *uncorroborated* `*(inferred)*` / `*(reported:)*` in a
+  `load_bearing: true` article is a candidate for the next verification
+  pass — `scripts/provenance-report --worklist` emits exactly that list
+  ([[maintenance-tools]], [[scripts-over-reasoning]]). When a sweep
+  confirms a claim, it appends the stronger provenance **inside the same
+  parenthetical** (`*(reported: vendor; code: Foo.m:12)*`) — the combined
+  form is what marks the claim verified and retires it from the worklist
+  *(field: first sweep, knowledger-trans 2026-07-22)*.
 - **Adversarial verification has targets:** a periodic sweep where an
   agent tries to *refute* claims starts from the worklist instead of
   re-reading everything.

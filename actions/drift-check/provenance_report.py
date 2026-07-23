@@ -15,9 +15,13 @@ decoration:
 
 Coverage view flags load_bearing articles with ZERO provenance tags —
 their claims are ungraded, so a reader can't calibrate trust. Worklist
-view lists file:line + snippet for each `inferred`/`reported` tag, i.e.
-the claims worth spending verification (or adversarial-refutation)
-effort on. Code fences and inline code are excluded from scanning.
+view lists file:line + snippet for each `inferred`/`reported` tag that
+is NOT corroborated — a parenthetical that also carries a
+code/bench/field provenance (the combined form a verification sweep
+produces, e.g. `*(reported: vendor; code: Foo.m:12)*`) is a verified
+claim and is suppressed from the worklist (its keywords still count in
+the coverage view). Code fences, inline code, and frontmatter are
+excluded from scanning.
 
 Uses validate_articles.parse_frontmatter (the shared hand-parser) —
 hence co-located.
@@ -33,11 +37,22 @@ from pathlib import Path
 
 from validate_articles import parse_frontmatter
 
-TAG_RE = re.compile(r"\*\((code|bench|field|reported|inferred)([:)])")
+# A provenance parenthetical: *(kw: evidence)* — possibly multi-provenance,
+# segments separated by ';', e.g. *(reported: vendor; code: Foo.m:12)*.
+PAREN_RE = re.compile(
+    r"\*\(((?:code|bench|field|reported|inferred)[^)]*)\)\*"
+)
+# Keywords inside a parenthetical: at the start, or right after a ';'.
+# Anchoring this way keeps evidence text from matching (e.g. the word
+# "code" inside "*(reported: error code list)*" is NOT a keyword).
+SEGMENT_KW_RE = re.compile(
+    r"(?:^|;\s*)(code|bench|field|reported|inferred)(?=[:;\s)]|$)"
+)
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
 KINDS = ("code", "bench", "field", "reported", "inferred")
 WORKLIST_KINDS = ("inferred", "reported")
+CORROBORATING = ("code", "bench", "field")
 
 
 def masked_lines(text: str) -> list[str]:
@@ -82,17 +97,28 @@ def scan(knowledge_dir: str) -> list[dict]:
         except (OSError, UnicodeDecodeError):
             continue
         for lineno, line in enumerate(masked_lines(text), start=1):
-            for m in TAG_RE.finditer(line):
-                kind = m.group(1)
-                counts[kind] += 1
-                if kind in WORKLIST_KINDS:
-                    hits.append(
-                        {
-                            "line": lineno,
-                            "kind": kind,
-                            "snippet": line.strip()[:160],
-                        }
-                    )
+            for pm in PAREN_RE.finditer(line):
+                kws = SEGMENT_KW_RE.findall(pm.group(1))
+                for kind in kws:
+                    counts[kind] += 1
+                # Corroborated-claim suppression: a parenthetical that ALSO
+                # carries a code/bench/field provenance (the combined form,
+                # e.g. *(reported: vendor; code: Foo.m:12)*) is a VERIFIED
+                # claim — its reported/inferred segments don't belong on the
+                # to-verify worklist. Learned on the first real sweep: the
+                # sanctioned upgrade path appends code: alongside reported:,
+                # and without this rule the worklist never shrinks.
+                if any(k in CORROBORATING for k in kws):
+                    continue
+                for kind in kws:
+                    if kind in WORKLIST_KINDS:
+                        hits.append(
+                            {
+                                "line": lineno,
+                                "kind": kind,
+                                "snippet": line.strip()[:160],
+                            }
+                        )
         articles.append(
             {
                 "path": str(path),

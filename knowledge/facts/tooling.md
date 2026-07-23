@@ -11,7 +11,7 @@ Atomic lookup facts extracted from the `tooling` articles' `## Facts` sections b
 - **bump-updated**: `scripts/bump-updated [--staged] [--check] [--date D]` — set `updated:` today
 - **sweep-report**: `scripts/sweep-report [--limit N] [--area A]` — oldest articles by `updated:`; skips `log/` + `facts/`
 - **roll-log**: `scripts/roll-log [--keep-days 14|--keep-since D] [--dry-run]` — monthly archives, conservation-checked
-- **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist
+- **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist (corroborated `*(reported: …; code: …)*` claims are suppressed from the worklist)
 - **build-facts**: `scripts/build-facts [--check]` — `knowledge/facts/<area>.md` from `## Facts` sections
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 

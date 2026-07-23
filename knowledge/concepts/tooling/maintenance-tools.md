@@ -35,7 +35,7 @@ references:
 - **bump-updated**: `scripts/bump-updated [--staged] [--check] [--date D]` — set `updated:` today
 - **sweep-report**: `scripts/sweep-report [--limit N] [--area A]` — oldest articles by `updated:`; skips `log/` + `facts/`
 - **roll-log**: `scripts/roll-log [--keep-days 14|--keep-since D] [--dry-run]` — monthly archives, conservation-checked
-- **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist
+- **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist (corroborated `*(reported: …; code: …)*` claims are suppressed from the worklist)
 - **build-facts**: `scripts/build-facts [--check]` — `knowledge/facts/<area>.md` from `## Facts` sections
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
@@ -61,7 +61,7 @@ failure so every tool is CI-able.
 | `bump-updated` | Set `updated:` to today on given/`--staged` articles; `--check` mode for pre-commit | Forgotten date bumps silently corrupting drift-sweep ordering |
 | `sweep-report` | The N oldest articles by `updated:` (optional `--area`), i.e. the drift-sweep worklist, generated not reasoned | Sweep sessions spending effort finding what to sweep instead of sweeping |
 | `roll-log` | Move log entries older than the keep-window into monthly `knowledge/log/YYYY-MM.md` archives; **conservation-checked** (aborts if any entry text would be lost); preserves the active log's own entry order (newest-first and oldest-first both supported) | An unboundedly growing active log; entries lost during manual archiving |
-| `provenance-report` | Claim-provenance tag coverage (per-article `code/bench/field/reported/inferred` counts; flags `load_bearing` articles with zero tags) and `--worklist` — every inferred/reported claim in a load-bearing article, i.e. the generated input for verification/refutation sweeps. Semantics: [[claim-provenance]] | Tags rotting into decoration; verification effort spent re-reading everything instead of targeting ungraded claims |
+| `provenance-report` | Claim-provenance tag coverage (per-article `code/bench/field/reported/inferred` counts; flags `load_bearing` articles with zero tags) and `--worklist` — every *uncorroborated* inferred/reported claim in a load-bearing article (combined-parenthetical claims like `*(reported: vendor; code: Foo.m:12)*` count as verified and are suppressed), i.e. the generated input for verification/refutation sweeps. Semantics: [[claim-provenance]] | Tags rotting into decoration; verification effort spent re-reading everything instead of targeting ungraded claims |
 | `build-facts` | Concatenates articles' `## Facts` sections per `area:` into generated `knowledge/facts/<area>.md` (sentinel first line; orphan cleanup; `--check` gate). Semantics: [[facts-register]] | Needle queries paying 20–60KB prose loads for one-line answers |
 
 ## Design notes
