@@ -48,6 +48,11 @@ class MappingRow:
 
     code_pattern: str  # e.g., "src/workflows/*.py" or "the LLM agent"
     article_path: str  # e.g., "knowledge/concepts/x.md"
+    # Where the row came from. "affects" rows are globs BY DEFINITION and are
+    # never keyword-matched; only legacy CLAUDE.md "table" rows may fall back
+    # to the natural-language keyword matcher. (Field-driven: a bare-filename
+    # affects entry once keyword-matched "data" against "datadog".)
+    source: str = "table"
 
 
 def parse_frontmatter_affects(article_path: Path) -> list[str]:
@@ -119,8 +124,17 @@ def parse_articles_affects(knowledge_dir: str) -> list[MappingRow]:
             continue
         article_str = str(article).replace("\\", "/")
         for glob in affects:
+            # `external:`-prefixed entries document code paths in OTHER repos
+            # (a cross-repo convention from the field adoption) — they are
+            # intentionally never matched against this repo's diff.
+            if glob.startswith("external:"):
+                continue
             rows.append(
-                MappingRow(code_pattern=glob, article_path=article_str)
+                MappingRow(
+                    code_pattern=glob,
+                    article_path=article_str,
+                    source="affects",
+                )
             )
     return rows
 
@@ -267,7 +281,7 @@ def _glob_to_regex(pattern: str) -> str:
 
 
 def code_pattern_matches_files(
-    code_pattern: str, changed_files: list[str]
+    code_pattern: str, changed_files: list[str], force_glob: bool = False
 ) -> list[str]:
     """Determine which changed files match a mapping row's code pattern.
 
@@ -280,6 +294,12 @@ def code_pattern_matches_files(
       from the description. Best-effort fallback; new mappings should use
       glob form.
 
+    `force_glob=True` (used for `affects:`-sourced rows) disables the keyword
+    fallback entirely: affects entries are globs by definition, and letting
+    them keyword-match produced false positives in the field (a bare
+    `health-data-api-spec.json` entry matched "datadog" via the token "data").
+    A non-matching literal is inert here; the check-affects linter flags it.
+
     Returns the subset of changed_files that match.
     """
     pattern = code_pattern.strip().strip("`")
@@ -288,7 +308,7 @@ def code_pattern_matches_files(
         (".py", ".ts", ".tsx", ".js", ".go", ".rs", ".rb", ".md", ".yml", ".yaml")
     )
 
-    if looks_like_path:
+    if looks_like_path or force_glob:
         regex = _glob_to_regex(pattern)
         return [f for f in changed_files if re.match(regex, f)]
 
@@ -324,7 +344,9 @@ def check_drift(
     changed_set = {f for f in changed_files}
 
     for row in mapping:
-        matched = code_pattern_matches_files(row.code_pattern, changed_files)
+        matched = code_pattern_matches_files(
+            row.code_pattern, changed_files, force_glob=(row.source == "affects")
+        )
         if not matched:
             continue
         # Normalize article path; allow it to be relative or knowledge-rooted.

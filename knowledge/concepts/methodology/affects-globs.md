@@ -3,7 +3,7 @@ title: affects globs — code↔article mapping
 description: "Code↔article mapping via `affects:` frontmatter; auto-generated table"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   - 'schemas/article-frontmatter.schema.json'
@@ -92,6 +92,35 @@ naturally. After enough articles have `affects:`, delete the table.
   function between files in the same glob still requires article
   judgment. The check is "did you open the article?", not "did you
   write the right thing?".
+
+## Hygiene rules (field-driven, 2026-07-22)
+
+A mature adoption's first commit-gate run was blocked twice by four
+latent `affects:` bugs that had sat silently for months. They generalize
+to rules, enforced by `scripts/check-affects` ([[maintenance-tools]]):
+
+- **Every entry is a glob.** Free text inside `affects:` is an ERROR —
+  it isn't a mapping, and it historically fed drift-check's keyword
+  fallback (a bare `health-data-api-spec.json` entry once matched
+  "data**dog**" via the token "data"). Affects-sourced rows are now
+  *never* keyword-matched (`force_glob`), so free text is inert — but
+  still wrong.
+- **Never claim the knowledge tree.** A glob targeting `knowledge/**`
+  turns every article edit in that area into a drift violation
+  (a meta-article once claimed five whole trees). drift-check maps
+  *code* paths to articles.
+- **Cross-repo paths use the `external:` prefix** —
+  `external: gitlab.example.net/group/repo/path` documents a code path
+  in *another* repo. Documentation-only: drift-check skips these
+  entirely (the same-task rule there rides on the product-repo commit
+  trailer convention), and check-affects exempts them.
+- **Broad globs on shared paths age badly.** `**/.gitlab-ci.yml`, written
+  when only the product repo had CI, false-matched the knowledge repo's
+  own CI file the day one was added. Prefer the narrowest prefix that is
+  true — e.g. `ProductRepo/**/.gitlab-ci.yml`.
+- **A bare filename that matches nothing is a missing `**/`** —
+  check-affects warns (`bare-literal`); a live root-level literal like
+  `CLAUDE.md` is fine and stays silent.
 
 ## What this article's own `affects:` covers
 

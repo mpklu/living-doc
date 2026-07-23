@@ -23,7 +23,7 @@ edit the frontmatter, not the tables. CI-checkable with
 <!-- build-index:begin dir=concepts/methodology -->
 | Article | Covers | Updated |
 | --- | --- | --- |
-| [affects-globs](concepts/methodology/affects-globs.md) | Code↔article mapping via `affects:` frontmatter; auto-generated table | 2026-04-29 |
+| [affects-globs](concepts/methodology/affects-globs.md) | Code↔article mapping via `affects:` frontmatter; auto-generated table | 2026-07-22 |
 | [claim-provenance](concepts/methodology/claim-provenance.md) | Inline provenance tags — *(code: path:line)* · *(bench: date)* · *(field: incident)* · *(reported: who)* · *(inferred)* — so readers (human or agent) can calibrate trust per claim, not per article. The fix for AI-written docs' worst failure mode: confident-sounding inference read as fact later | 2026-07-22 |
 | [dogfooding](concepts/methodology/dogfooding.md) | Why this repo applies its own methodology; what's different about a meta-repo | 2026-04-29 |
 | [facts-register](concepts/methodology/facts-register.md) | Optional per-article `## Facts` section (atomic, provenance-tagged lookup facts) concatenated per area into generated knowledge/facts/<area>.md files — so a needle query loads one ~3KB surface instead of 20–60KB of prose. Read-path economics: writing is cheap now; context tokens at read time are the scarce resource | 2026-07-22 |
@@ -40,7 +40,7 @@ edit the frontmatter, not the tables. CI-checkable with
 <!-- build-index:begin dir=concepts/tooling -->
 | Article | Covers | Updated |
 | --- | --- | --- |
-| [drift-check](concepts/tooling/drift-check.md) | `drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback | 2026-04-29 |
+| [drift-check](concepts/tooling/drift-check.md) | `drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback | 2026-07-22 |
 | [install-script](concepts/tooling/install-script.md) | `install/install.sh` internals: bash 3.2+, manifest-driven, atomic per-file write, idempotent re-run, detection bias toward brownfield | 2026-04-29 |
 | [maintenance-tools](concepts/tooling/maintenance-tools.md) | The local maintenance suite: link checking, index generation from frontmatter, updated:-date bumping, drift-sweep worklists, and log rotation — five stdlib-only tools sharing the validate_articles frontmatter parser | 2026-07-22 |
 | [validate-articles](concepts/tooling/validate-articles.md) | Frontmatter schema validator: hand-rolled YAML parser, cross-reference check, schema-as-contract caveat | 2026-07-22 |

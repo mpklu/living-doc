@@ -15,6 +15,8 @@ affects:
   - 'scripts/provenance-report'
   - 'actions/drift-check/build_facts.py'
   - 'scripts/build-facts'
+  - 'actions/drift-check/check_affects.py'
+  - 'scripts/check-affects'
   - 'scripts/check-links'
   - 'scripts/build-index'
   - 'scripts/bump-updated'
@@ -37,6 +39,7 @@ references:
 - **roll-log**: `scripts/roll-log [--keep-days 14|--keep-since D] [--dry-run]` — monthly archives, conservation-checked
 - **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist (corroborated `*(reported: …; code: …)*` claims are suppressed from the worklist)
 - **build-facts**: `scripts/build-facts [--check]` — `knowledge/facts/<area>.md` from `## Facts` sections
+- **check-affects**: `scripts/check-affects [--source-root P] [--strict]` — affects hygiene: free-text/article-tree = error; dead-glob/bare-literal = warn; `external:` exempt
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
 Five local tools that mechanize the recurring upkeep a knowledge base
@@ -62,6 +65,7 @@ failure so every tool is CI-able.
 | `sweep-report` | The N oldest articles by `updated:` (optional `--area`), i.e. the drift-sweep worklist, generated not reasoned | Sweep sessions spending effort finding what to sweep instead of sweeping |
 | `roll-log` | Move log entries older than the keep-window into monthly `knowledge/log/YYYY-MM.md` archives; **conservation-checked** (aborts if any entry text would be lost); preserves the active log's own entry order (newest-first and oldest-first both supported) | An unboundedly growing active log; entries lost during manual archiving |
 | `provenance-report` | Claim-provenance tag coverage (per-article `code/bench/field/reported/inferred` counts; flags `load_bearing` articles with zero tags) and `--worklist` — every *uncorroborated* inferred/reported claim in a load-bearing article (combined-parenthetical claims like `*(reported: vendor; code: Foo.m:12)*` count as verified and are suppressed), i.e. the generated input for verification/refutation sweeps. Semantics: [[claim-provenance]] | Tags rotting into decoration; verification effort spent re-reading everything instead of targeting ungraded claims |
+| `check-affects` | Lints every `affects:` entry — free text and `knowledge/**`-tree claims are errors; dead globs and dead bare literals warn (liveness vs this repo + repeatable `--source-root`); `external:`-prefixed entries exempt. Semantics: [[affects-globs]] hygiene rules | The four latent mapping bugs the commit gate's maiden run caught by trial-and-error — as a linter, before commit |
 | `build-facts` | Concatenates articles' `## Facts` sections per `area:` into generated `knowledge/facts/<area>.md` (sentinel first line; orphan cleanup; `--check` gate). Semantics: [[facts-register]] | Needle queries paying 20–60KB prose loads for one-line answers |
 
 ## Design notes

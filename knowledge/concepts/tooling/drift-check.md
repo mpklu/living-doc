@@ -3,7 +3,7 @@ title: drift-check — internals
 description: "`drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback"
 type: concept
 area: tooling
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   - 'actions/drift-check/drift_check.py'
@@ -134,14 +134,27 @@ the `*` in a just-emitted `[^/]*`. Patterns like `foo*/**/bar` or
 `.**/x` would degenerate. The current single-token lookahead avoids
 that class of bug entirely.
 
-## Free-text fallback (legacy table only)
+## Free-text fallback (legacy table only — now enforced)
 
 When a CLAUDE.md table row uses a natural-language description
 ("the LLM agent code"), `code_pattern_matches_files` falls back to
 keyword matching: extracts non-trivial words and tests each changed
 file's path. Imprecise; we keep it only because some early adopter
-projects have such rows. New mappings (especially from `affects:`
-frontmatter) should always use globs.
+projects have such rows.
+
+Since 2026-07-22, "legacy table only" is enforced, not advisory:
+`affects:`-sourced rows carry `source="affects"` on `MappingRow` and are
+matched with `force_glob=True` — the keyword path is unreachable for
+them. Field-driven: a bare `health-data-api-spec.json` affects entry
+(not path-looking — no slash, no star, `.json` not in the extension
+list) keyword-matched "datadog" via the token "data". A non-matching
+affects literal is now simply inert; `check-affects` flags it as
+`bare-literal`.
+
+`parse_articles_affects` also skips entries with the **`external:`
+prefix** — the cross-repo documentation convention (see
+[[affects-globs]] hygiene rules). They map code in *other* repos and
+must never match this repo's diff.
 
 ## Output contract
 
