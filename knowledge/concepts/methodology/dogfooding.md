@@ -3,7 +3,7 @@ title: Dogfooding the methodology
 description: "Why this repo applies its own methodology; what's different about a meta-repo"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   - 'CLAUDE.md'
@@ -83,3 +83,13 @@ counterargument.
   in one command; the prompt-as-methodology argument lives in
   `concepts/methodology/prompts.md`, the installer-as-tooling
   argument in `concepts/tooling/install-script.md`
+
+## The router stays lean
+
+CLAUDE.md is loaded by every session — the most-read cache in the repo
+(what-cache/why-asset). Slimmed 2026-07-22 (5.9KB → ~4.6KB): stale
+"until the affects: mapping ships" claims corrected (it shipped
+2026-04-29 and is canonical; the table is legacy-secondary), the
+frontmatter example now shows the real schema (description:, affects:
+load-bearing), and the structure block gained the previously-missing
+scripts/ listing. Contracts (rule, checklist, red flags) verbatim.

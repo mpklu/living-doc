@@ -3,7 +3,7 @@ title: Procedural compliance — checklist, not principle
 description: "Same-task rule expressed as a checklist + red-flag phrases, not just principle"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   - 'CLAUDE.md'
@@ -122,3 +122,12 @@ assumption that "the rule is enough."
   framing by default
 - `LIVING_DOCS_OVERVIEW.md`, the two adoption guides — pending
   procedural-framing call-out at next touch
+
+## Now machine-enforced
+
+Since 2026-07-22 the checklist is not just procedure: the installed
+`pre-commit-gate` runs it mechanically (validate · check-affects ·
+check-links · index/facts freshness · drift-check on the staged diff),
+and CLAUDE.md's checklist intro says so. The principle→procedure→
+mechanism ladder is complete; the red-flag phrases now describe
+thoughts the gate interrupts rather than thoughts discipline must catch.
