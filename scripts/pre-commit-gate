@@ -1,0 +1,43 @@
+#!/bin/bash
+# pre-commit-gate — the knowledge-base commit gate, runnable three ways:
+#   1. directly:            scripts/pre-commit-gate
+#   2. as a plain git hook: .git/hooks/pre-commit execs this (install: scripts/pre-commit-gate --install)
+#   3. via the pre-commit framework / CI: see .pre-commit-config.yaml / .gitlab-ci.yml
+#
+# Runs the deterministic checks (scripts-over-reasoning: mechanical gates are a
+# script's job): frontmatter validity, link resolution (log archives excluded —
+# append-only), generated index + facts freshness, and the same-task drift check
+# on the staged diff. Every failure prints its own one-command fix.
+#
+# Bypass (by design): git commit --no-verify. CI is the safety net behind that.
+set -u
+cd "$(dirname "$0")/.." || exit 1
+
+if [ "${1:-}" = "--install" ]; then
+  hook=".git/hooks/pre-commit"
+  printf '#!/bin/sh\nexec scripts/pre-commit-gate\n' > "$hook" && chmod +x "$hook" \
+    && echo "installed $hook -> scripts/pre-commit-gate" || exit 1
+  exit 0
+fi
+
+fail=0
+run() {   # run <label> <cmd...> — keep going so ALL failures show at once
+  echo "== $1"
+  shift
+  "$@" || fail=1
+}
+
+run "validate-articles"  scripts/validate-articles
+run "check-affects"      scripts/check-affects
+run "check-links"        scripts/check-links --exclude 'log/*'
+run "build-index --check" scripts/build-index --check
+run "build-facts --check" scripts/build-facts --check
+run "drift-check (staged)" scripts/drift-check --base-ref HEAD
+
+if [ "$fail" -ne 0 ]; then
+  echo
+  echo "❌ pre-commit-gate: fix the failures above (each prints its own fix command),"
+  echo "   re-stage, and commit again. Bypass (discouraged): git commit --no-verify"
+  exit 1
+fi
+echo "✅ pre-commit-gate: all knowledge-base checks passed."
