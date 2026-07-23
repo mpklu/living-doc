@@ -141,6 +141,27 @@ zero dependencies — the field adoption ships one as `scripts/pre-commit-gate`
 the same commands in CI: hooks are bypassable by `--no-verify`, CI is the
 safety net.
 
+## Cross-repo: the `Knowledge:` trailer hook (product repos)
+
+Drift-check guards the knowledge repo; the same-task rule's other half
+lives in the PRODUCT repos, where code changes must name the article they
+obligate. `check-trailer` enforces the trailer convention as a
+`commit-msg` hook **installed in each product repo**:
+
+```bash
+cd /path/to/ProductRepo
+/path/to/knowledge-repo/scripts/check-trailer --install --knowledge-repo /path/to/knowledge-repo
+```
+
+A commit whose staged paths match any article's `affects:` globs (or an
+`external:` entry naming this repo) is blocked unless the message carries
+`Knowledge: <article>` or an explicit `no knowledge impact: <reason>`.
+The block prints the mapped article list and a paste-ready trailer.
+Start with `--warn-only` in the hook line for a soft rollout. Note the
+trade-off honestly: product repos usually have no CI net behind
+`git commit --no-verify` — this hook is the enforcement, so keep it
+helpful enough that nobody wants to bypass it.
+
 ## Bypass behaviour
 
 All hook frameworks let contributors bypass with

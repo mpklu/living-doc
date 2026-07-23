@@ -14,6 +14,7 @@ Atomic lookup facts extracted from the `tooling` articles' `## Facts` sections b
 - **provenance-report**: `scripts/provenance-report [--worklist [--all]]` — tag coverage / verification worklist (corroborated `*(reported: …; code: …)*` claims are suppressed from the worklist)
 - **build-facts**: `scripts/build-facts [--check]` — `knowledge/facts/<area>.md` from `## Facts` sections
 - **check-affects**: `scripts/check-affects [--source-root P] [--strict]` — affects hygiene: free-text/article-tree = error; dead-glob/bare-literal = warn; `external:` exempt
+- **check-trailer**: `scripts/check-trailer --knowledge-repo P [--install|--warn-only]` — PRODUCT-repo commit-msg hook: mapped changes require a `Knowledge:` trailer or `no knowledge impact:` line
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
 Five local tools that mechanize the recurring upkeep a knowledge base

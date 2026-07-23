@@ -64,6 +64,10 @@ An existing project with prior commits, existing wiki / README / design docs, an
 
 The workspace-level pattern: each repo has its own `CLAUDE.md` and `knowledge/` (primary, authoritative); the workspace root has a thin `CLAUDE.md` and `knowledge/connections/` only — for cross-repo articles whose premise requires multiple repos to be co-present. Concept articles never live at the workspace level.
 
+### `Knowledge:` trailer
+
+The cross-repo half of the same-task rule: a product-repo commit that touches code mapped by any article's `affects:` globs names the obligated article in a `Knowledge: <article>` commit trailer (or declares `no knowledge impact: <reason>`). Enforced by `scripts/check-trailer` installed as a `commit-msg` hook in each product repo — the knowledge repo's drift-check cannot see product-repo diffs, so this hook is that seam's only mechanical guard.
+
 ### Knowledge base (`knowledge/`)
 
 The directory at the project root that holds all articles. Treated as the source of truth for the project's behaviour and rationale. Mirrors the code; updated in the same task as the code.

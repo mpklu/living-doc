@@ -178,6 +178,9 @@ these remain open, roughly ordered by observed pain:
   the diff matches any knowledge-repo `affects:` glob, require a
   `Knowledge: <article>` trailer. Closes the single biggest enforcement
   gap (the same-task rule outside the knowledge repo rests on discipline).
+  **Shipped 2026-07-22:** `scripts/check-trailer` (+ `--install`,
+  `--warn-only`, `external:` repo-name matching). Remaining: field data on
+  false-positive rate across the product fleet.
 - **Scaffolds** — `new-article` / `new-log-entry` generators emitting
   schema-valid skeletons, so frontmatter shape is never re-derived.
 - **Secret/PHI lint for T1/T2** — pattern-based check (credentials,
