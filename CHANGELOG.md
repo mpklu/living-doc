@@ -10,7 +10,8 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 
 ## [Unreleased]
 
-_(no unreleased changes)_
+### Fixed
+- `check-trailer` — `external:` repo-name matching compares path segments (dotted segments like hosts/filenames excluded), not raw substrings; a repo named after part of the GitLab host produced 12 bogus whole-repo mappings on the first real run.
 
 ## [0.2.0] — 2026-07-22
 

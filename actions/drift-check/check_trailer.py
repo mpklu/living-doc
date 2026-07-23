@@ -88,18 +88,26 @@ def match_articles(
                 h for h in hits if h not in matched.get(row.article_path, [])
             )
 
-    # external: entries — repo-level mapping by name.
+    # external: entries — repo-level mapping by name. Match against PATH
+    # SEGMENTS, not raw substring: "MacPractice" must match the /MacPractice/
+    # segment of an entry, but NOT the host "gitlab.macpractice.net" — the
+    # first field run produced 12 bogus whole-repo mappings exactly that way.
+    # Dotted segments (hosts, filenames) are excluded from comparison.
     if paths:
+        rn = repo_name.lower()
         for article in sorted(kdir.rglob("*.md")):
             fm = parse_frontmatter(article)
             if not fm:
                 continue
             for entry in fm.get("affects", []) or []:
-                if (
-                    isinstance(entry, str)
-                    and entry.startswith("external:")
-                    and repo_name.lower() in entry.lower()
-                ):
+                if not (isinstance(entry, str) and entry.startswith("external:")):
+                    continue
+                tail = entry[len("external:"):].strip()
+                segments = [
+                    s.lower() for s in re.split(r"[/\s]+", tail)
+                    if s and "." not in s
+                ]
+                if rn in segments:
                     matched.setdefault(str(article), []).append(
                         f"(whole repo: external match on '{repo_name}')"
                     )
