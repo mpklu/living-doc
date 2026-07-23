@@ -10,6 +10,9 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 
 ## [Unreleased]
 
+### Added
+- `scripts/check-dates` (+ `check_dates.py`) — stale-date flagger: past dates co-occurring with future-tense markers on a line (ISO + month-year; frontmatter/code/provenance-tag dates masked; `--today` time-travel). Warn-only by design — findings appear because time passed, so it belongs in sweeps and non-blocking CI, never the commit gate.
+
 ### Fixed
 - `check-trailer` — `external:` repo-name matching compares path segments (dotted segments like hosts/filenames excluded), not raw substrings; a repo named after part of the GitLab host produced 12 bogus whole-repo mappings on the first real run.
 

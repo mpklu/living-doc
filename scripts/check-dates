@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Local CLI wrapper: flag past dates still framed as future (stale-date sweep).
+
+Implementation lives in actions/drift-check/check_dates.py (co-located
+with the shared frontmatter parser + glob matcher). Run with --help.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+
+def _find_repo_root(start: Path) -> Path:
+    here = start.resolve()
+    while True:
+        if (here / "actions" / "drift-check" / "check_dates.py").exists():
+            return here
+        if here.parent == here:
+            break
+        here = here.parent
+    raise SystemExit(
+        "check-dates: could not locate actions/drift-check/check_dates.py "
+        "by walking up from this script."
+    )
+
+
+def main() -> int:
+    here = Path(__file__).resolve()
+    repo_root = _find_repo_root(here)
+    sys.path.insert(0, str(repo_root / "actions" / "drift-check"))
+    import check_dates  # noqa: E402
+    return check_dates.cli_main(sys.argv[1:])
+
+
+if __name__ == "__main__":
+    sys.exit(main())

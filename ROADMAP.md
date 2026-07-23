@@ -171,7 +171,8 @@ these remain open, roughly ordered by observed pain:
 - **Stale-date flagger** — script that flags past dates appearing near
   future-tense phrasing ("by then", "retires", "deadline", "upcoming").
   Field incident: a retirement date sat future-tense in 4+ articles for
-  three weeks after it passed.
+  three weeks after it passed. **Shipped 2026-07-22:** `scripts/check-dates`
+  (`--today` time-travel previews; sweep/non-blocking-CI by design).
 - **`affects:`-glob liveness** — each glob should match ≥1 real path in
   configured source roots; catches code renames orphaning the mapping.
 - **Cross-repo trailer hook** — commit-msg hook for *product* repos: if
