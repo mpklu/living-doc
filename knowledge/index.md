@@ -28,7 +28,7 @@ edit the frontmatter, not the tables. CI-checkable with
 | [dogfooding](concepts/methodology/dogfooding.md) | Why this repo applies its own methodology; what's different about a meta-repo | 2026-04-29 |
 | [facts-register](concepts/methodology/facts-register.md) | Optional per-article `## Facts` section (atomic, provenance-tagged lookup facts) concatenated per area into generated knowledge/facts/<area>.md files — so a needle query loads one ~3KB surface instead of 20–60KB of prose. Read-path economics: writing is cheap now; context tokens at read time are the scarce resource | 2026-07-22 |
 | [frontmatter-as-source-of-truth](concepts/methodology/frontmatter-as-source-of-truth.md) | Article metadata schema; canonical home for `affects`, `status`, `load_bearing` | 2026-04-29 |
-| [local-vs-pr-enforcement](concepts/methodology/local-vs-pr-enforcement.md) | Layered defense: local pre-commit + PR Action; same logic, two firing points | 2026-04-29 |
+| [local-vs-pr-enforcement](concepts/methodology/local-vs-pr-enforcement.md) | Layered defense: local pre-commit + PR Action; same logic, two firing points | 2026-07-22 |
 | [procedural-vs-principle](concepts/methodology/procedural-vs-principle.md) | Same-task rule expressed as a checklist + red-flag phrases, not just principle | 2026-04-29 |
 | [prompts](concepts/methodology/prompts.md) | Why we ship paste-able Claude prompts under `templates/prompts/`; what makes a good one; drift risk via the schema | 2026-04-29 |
 | [scripts-over-reasoning](concepts/methodology/scripts-over-reasoning.md) | Anything checkable by string/date/path comparison must be a script; AI reasoning is reserved for semantics. The boundary rule that keeps agent effort on judgment instead of bookkeeping | 2026-07-22 |

@@ -3,7 +3,7 @@ title: Local + PR-time enforcement — layered defense
 description: "Layered defense: local pre-commit + PR Action; same logic, two firing points"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-07-22
 status: thin
 affects:
   # Enforcement pieces only. actions/drift-check/ also co-hosts the
@@ -45,7 +45,7 @@ Both layers consume the same article-mapping source (`affects:`
 frontmatter, or legacy CLAUDE.md table). Same logic, two firing
 points. Drift in either layer means drift in both.
 
-## What ships (2026-04-29)
+## What shipped (2026-04-29)
 
 Three deliverables:
 
