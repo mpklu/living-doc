@@ -280,6 +280,23 @@ def _glob_to_regex(pattern: str) -> str:
     return f"^{regex}$"
 
 
+def _expand_braces(pattern: str) -> list[str]:
+    """Expand bash-style brace alternation: `a/{b,c}/d` → [`a/b/d`, `a/c/d`].
+
+    Nested/multiple groups expand recursively (leftmost-innermost first).
+    Field-driven: articles naturally write `Models/{Allergy,Medication}.swift`
+    — those entries silently never matched before this existed.
+    """
+    m = re.search(r"\{([^{}]*)\}", pattern)
+    if not m:
+        return [pattern]
+    head, tail = pattern[: m.start()], pattern[m.end():]
+    out: list[str] = []
+    for alt in m.group(1).split(","):
+        out.extend(_expand_braces(head + alt + tail))
+    return out
+
+
 def code_pattern_matches_files(
     code_pattern: str, changed_files: list[str], force_glob: bool = False
 ) -> list[str]:
@@ -309,8 +326,8 @@ def code_pattern_matches_files(
     )
 
     if looks_like_path or force_glob:
-        regex = _glob_to_regex(pattern)
-        return [f for f in changed_files if re.match(regex, f)]
+        regexes = [_glob_to_regex(p) for p in _expand_braces(pattern)]
+        return [f for f in changed_files if any(re.match(rx, f) for rx in regexes)]
 
     # Natural-language description fallback: match by keyword.
     keywords = [

@@ -46,7 +46,7 @@ import sys
 from pathlib import Path
 
 from validate_articles import parse_frontmatter
-from drift_check import _glob_to_regex
+from drift_check import _expand_braces, _glob_to_regex
 
 
 def _all_paths(root: Path, prefix: str = "") -> list[str]:
@@ -111,9 +111,10 @@ def lint(knowledge_dir: str, source_roots: list[str]) -> list[dict]:
                                            "maps CODE paths to articles; remove or "
                                            "point at code"})
                 continue
-            regex = _glob_to_regex(e)
+            regexes = [_glob_to_regex(v) for v in _expand_braces(e)]
             alive = any(
-                any(re.match(regex, p) for p in corpus) for corpus in corpora
+                any(re.match(rx, p) for rx in regexes for p in corpus)
+                for corpus in corpora
             )
             if alive:
                 continue

@@ -126,6 +126,12 @@ This matters because `affects:` patterns in articles routinely use
 `**` (e.g., `'actions/drift-check/**'`). The previous fnmatch-only
 behaviour would have silently failed to match nested files.
 
+Bash-style **brace alternation** is expanded before translation
+(`_expand_braces`: `Models/{Allergy,Medication}.swift` → two patterns;
+nested groups recurse). Field-driven (2026-07-22): a mature adoption's
+articles naturally used brace globs, and those entries had silently
+never matched anything — the liveness sweep exposed them.
+
 **Why `**/` is one token, not two stages.** An earlier version
 emitted `.*` for `**` then post-processed via `regex.rstrip(".*")`
 when a `/` followed. That stripped trailing `.` and `*` characters
