@@ -92,11 +92,16 @@ def lint(knowledge_dir: str, source_roots: list[str]) -> list[dict]:
             if entry.startswith("external:"):
                 continue  # documented cross-repo convention; never matched
             e = entry.strip().strip("`").strip("'\"")
-            if re.search(r"\s", e):
+            # Free text = whitespace AND no path separator. Whitespace alone
+            # is NOT disqualifying — real paths contain spaces (field case:
+            # "…/Authentication Middleware/PatientPortalUserAuthMiddleware.swift").
+            # Spaced entries WITH a '/' proceed as globs; liveness judges them.
+            if re.search(r"\s", e) and "/" not in e:
                 findings.append({"article": str(article), "entry": entry,
                                  "kind": "free-text",
-                                 "detail": "contains whitespace — not a glob; "
-                                           "make it a real glob or prefix `external:`"})
+                                 "detail": "whitespace and no '/' — prose, not a "
+                                           "glob; make it a real glob or prefix "
+                                           "`external:`"})
                 continue
             norm = e.lstrip("/")
             if norm.startswith(f"{knowledge_dir}/") or norm.startswith("knowledge/"):
