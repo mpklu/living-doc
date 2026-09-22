@@ -3,7 +3,7 @@ title: validate-articles — internals
 description: "Frontmatter schema validator: hand-rolled YAML parser, cross-reference check, schema-as-contract caveat"
 type: concept
 area: tooling
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 affects:
   - 'actions/drift-check/validate_articles.py'
@@ -130,3 +130,11 @@ practice.
 - `schemas/article-frontmatter.schema.json` — the contract
 - `concepts/methodology/frontmatter-as-source-of-truth.md` — design
   doc for the schema itself
+
+## 2026-09-21 — skip list
+
+Non-article files skipped by name grew to `index.md`, `log.md`, `manifest.md`, `areas.md`,
+`scopes.md`, `_index.md`; directories skipped by first path segment are `log/`, `facts/`,
+`manifest/`, `guide/` (was: parent dir named `log` or `facts` — which missed `log/entries/`).
+Required fields and the status enum are unchanged here; the field repo relaxed them locally, and that
+relaxation deliberately did not come upstream.

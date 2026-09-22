@@ -3,7 +3,7 @@ title: Paste-able prompts as methodology surface
 description: "Why we ship paste-able Claude prompts under `templates/prompts/`; what makes a good one; drift risk via the schema"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-09-21
 status: thin
 affects:
   - 'templates/prompts/**'
@@ -42,3 +42,10 @@ If a future contributor proposes "let's just put the prompts inline in install.s
 - `templates/prompts/first-articles-brownfield.md`
 - `templates/prompts/first-articles-greenfield.md`
 - `templates/prompts/README.md` — index and adopter instructions
+
+## 2026-09-21 — the first-articles prompts' closing steps
+
+Step 1 now asks for one log entry file (`knowledge/log/entries/YYYY-MM-DD-<slug>.md`, first line
+`## YYYY-MM-DD — <title>`) instead of an appended `log.md` entry; step 2 asks for a scope line per new
+directory in `scopes.md` and a `scripts/build-index` run instead of editing `index.md`. The prompts
+drift with the shape by design — the schema is the contract, the prompt follows it.

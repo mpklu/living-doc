@@ -21,9 +21,17 @@ Runs in a PRODUCT repo (as a `commit-msg` hook, or standalone):
      `no knowledge impact: <reason>` line. Otherwise: block (exit 1)
      with the expected article list and a paste-ready trailer.
 
-Deliberately helpful, not hostile: any non-empty trailer satisfies (v1
-doesn't police that it names the right article — the printed list is
-guidance), `--warn-only` never blocks, and `git commit --no-verify`
+  4. (v2, 2026-09-21) The trailer must name at least one article that
+     EXISTS under the knowledge dir and was actually TOUCHED — any of:
+     dirty in the knowledge repo's working tree (staged or not), committed
+     there within `--touch-window-hours` (default 24), or `updated:` set to
+     today. v1 accepted any non-empty trailer, so `Knowledge: concepts/x.md`
+     satisfied the hook without anyone opening x.md — the one enforcement
+     layer that ran on the honour system. `--names-only` restores v1.
+
+Deliberately helpful, not hostile: the printed article list is guidance
+(you may name a different article than the matcher predicted, as long as
+you touched it), `--warn-only` never blocks, and `git commit --no-verify`
 remains the escape hatch (product repos typically lack a CI net behind
 it — the trade-off is documented, not hidden).
 
@@ -39,6 +47,7 @@ Co-located with drift_check.py (reuses its parser + matcher).
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import re
 import subprocess
 import sys
@@ -52,7 +61,76 @@ from drift_check import (
 from validate_articles import parse_frontmatter
 
 TRAILER_RE_TMPL = r"(?mi)^{trailer}\s*:\s*\S"
+TRAILER_VALUE_RE_TMPL = r"(?mi)^{trailer}\s*:\s*(.+)$"
 NO_IMPACT_RE = re.compile(r"(?i)no knowledge impact\s*:")
+MD_PATH_RE = re.compile(r"[\w./\-+ ]*?[\w\-+]+\.md")
+
+
+def trailer_article_paths(
+    body: str, trailer: str, knowledge_repo: Path, knowledge_dir: str
+) -> tuple[list[Path], list[str]]:
+    """Resolve the `.md` tokens named in every trailer line.
+
+    Returns (existing article paths, unresolvable tokens). Accepts
+    `concepts/x.md`, `knowledge/concepts/x.md`, backticked, or several
+    per line separated by commas/spaces; free text without a `.md` token
+    resolves to nothing."""
+    kdir = knowledge_repo / knowledge_dir
+    found: list[Path] = []
+    missing: list[str] = []
+    for m in re.finditer(TRAILER_VALUE_RE_TMPL.format(trailer=re.escape(trailer)), body):
+        value = m.group(1).replace("`", " ")
+        for tok in MD_PATH_RE.findall(value):
+            tok = tok.strip().strip(",;")
+            if not tok:
+                continue
+            rel = tok
+            prefix = knowledge_dir.rstrip("/") + "/"
+            if rel.startswith(prefix):
+                rel = rel[len(prefix):]
+            candidate = kdir / rel
+            if candidate.is_file():
+                if candidate not in found:
+                    found.append(candidate)
+            else:
+                missing.append(tok)
+    return found, missing
+
+
+def _git(repo: Path, *args: str) -> str | None:
+    try:
+        return subprocess.run(
+            ["git", "-C", str(repo), *args],
+            capture_output=True, text=True, check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def touch_evidence(
+    article: Path, knowledge_repo: Path, window_hours: int
+) -> str | None:
+    """Why we believe this article was touched in the current task, or None.
+
+    Three independent signals, cheapest-to-strongest: uncommitted change in
+    the knowledge repo, a commit within the window, or `updated:` == today
+    (bump-updated sets it on staged articles; a same-day KB commit older
+    than the window still carries it)."""
+    try:
+        rel = article.relative_to(knowledge_repo).as_posix()
+    except ValueError:
+        rel = str(article)
+    dirty = _git(knowledge_repo, "status", "--porcelain", "--untracked-files=all", "--", rel)
+    if dirty and dirty.strip():
+        return "uncommitted change in knowledge repo"
+    recent = _git(knowledge_repo, "log", "-1", f"--since={window_hours} hours ago",
+                  "--format=%h", "--", rel)
+    if recent and recent.strip():
+        return f"committed {recent.strip()} within {window_hours}h"
+    fm = parse_frontmatter(article) or {}
+    if str(fm.get("updated", "")) == _dt.date.today().isoformat():
+        return "updated: is today"
+    return None
 
 
 def staged_paths() -> list[str]:
@@ -138,6 +216,50 @@ def install_hook(knowledge_repo: Path) -> int:
     return 0
 
 
+def _rel(path: str | Path, knowledge_repo: Path) -> str:
+    try:
+        return str(Path(path).relative_to(knowledge_repo))
+    except ValueError:
+        return str(path)
+
+
+def verify_touched(
+    args, body: str, knowledge_repo: Path, matched: dict[str, list[str]]
+) -> int:
+    """v2 gate: the trailer's articles must exist and show touch evidence."""
+    named, missing = trailer_article_paths(
+        body, args.trailer, knowledge_repo, args.knowledge_dir
+    )
+    untouched = []
+    for article in named:
+        if touch_evidence(article, knowledge_repo, args.touch_window_hours) is None:
+            untouched.append(article)
+    if named and not missing and not untouched:
+        return 0
+
+    print(f"⚠️  `{args.trailer}:` trailer present, but it does not point at a "
+          f"touched article.")
+    if not named and not missing:
+        print("   The trailer names no `.md` path under "
+              f"{args.knowledge_dir}/ — a note is not an article update.")
+    for tok in missing:
+        print(f"   • not found: {tok}")
+    for article in untouched:
+        print(f"   • unchanged: {_rel(article, knowledge_repo)} — not dirty in "
+              f"the knowledge repo, no commit in the last "
+              f"{args.touch_window_hours}h, `updated:` is not today")
+    print("\n   Same-task rule: edit the article now (or commit it in the "
+          "knowledge repo), then re-run this commit.")
+    if matched:
+        print("   Articles the matcher expected for these paths:")
+        for article in sorted(matched):
+            print(f"     • {_rel(article, knowledge_repo)}")
+    print("   …or, if genuinely doc-irrelevant:\n     no knowledge impact: <reason>")
+    print("   Name-only check (v1 behaviour): --names-only · "
+          "Bypass (discouraged): git commit --no-verify")
+    return 0 if args.warn_only else 1
+
+
 def cli_main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Require a Knowledge: trailer on product-repo commits "
@@ -152,6 +274,12 @@ def cli_main(argv: list[str] | None = None) -> int:
                     help="override staged paths (testing)")
     ap.add_argument("--trailer", default="Knowledge")
     ap.add_argument("--warn-only", action="store_true")
+    ap.add_argument("--names-only", action="store_true",
+                    help="v1 behaviour: accept any non-empty trailer without "
+                         "verifying the named article was touched")
+    ap.add_argument("--touch-window-hours", type=int, default=24,
+                    help="a knowledge-repo commit to the named article within "
+                         "this window counts as touched (default 24)")
     ap.add_argument("--install", action="store_true",
                     help="write .git/hooks/commit-msg in the current (product) repo")
     args = ap.parse_args(argv)
@@ -186,8 +314,12 @@ def cli_main(argv: list[str] | None = None) -> int:
     body = "\n".join(l for l in msg.splitlines() if not l.startswith("#"))
 
     trailer_re = re.compile(TRAILER_RE_TMPL.format(trailer=re.escape(args.trailer)))
-    if trailer_re.search(body) or NO_IMPACT_RE.search(body):
+    if NO_IMPACT_RE.search(body):
         return 0
+    if trailer_re.search(body):
+        if args.names_only:
+            return 0
+        return verify_touched(args, body, knowledge_repo, matched)
 
     print(f"⚠️  This commit touches code mapped to knowledge articles, but has "
           f"no `{args.trailer}:` trailer.")

@@ -30,6 +30,7 @@ hence co-located.
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import re
 import sys
@@ -86,11 +87,65 @@ def masked_lines(text: str) -> list[str]:
     return out
 
 
+CODE_CITE_RE = re.compile(r"\*\(\s*(?:[^)]*;\s*)?code\s*:\s*([^;)]*)")
+FILE_TOKEN_RE = re.compile(
+    r"([A-Za-z0-9_./+\- ]*?[A-Za-z0-9_+\-]+\.(?:swift|m|mm|h|rb|py|sh|js|ts|json|plist|yml|yaml|sql|go|c|cpp|xml|entitlements|txt|md))"
+)
+
+
+def code_cites(text: str) -> list[tuple[int, str]]:
+    """(line, file-token) for every *(code: …)* segment that names a file; bare *(code)* skipped."""
+    out: list[tuple[int, str]] = []
+    in_fence = False
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        for m in CODE_CITE_RE.finditer(line):
+            ev = m.group(1).replace("`", " ")
+            for t in FILE_TOKEN_RE.findall(ev):
+                out.append((lineno, t.strip().lstrip("./")))
+    return out
+
+
+def liveness(knowledge_dir: str, source_roots: list[str]) -> dict:
+    """Which code: cites still name a file under the source roots (basename or path-suffix match).
+    Line numbers are not checked — they rot by design; the file existing is the cheap signal."""
+    index: dict[str, set[str]] = {}
+    for root in source_roots:
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", ".build", "DerivedData")]
+            for f in filenames:
+                index.setdefault(f, set()).add(os.path.join(dirpath, f).replace("\\", "/"))
+    total = live = 0
+    dead: list[tuple[str, int, str]] = []
+    root = Path(knowledge_dir)
+    for path in sorted(root.rglob("*.md")):
+        if path.relative_to(root).parts[0] in ("log", "facts", "manifest", "guide") or path.name == "_index.md":
+            continue
+        if parse_frontmatter(path) is None:
+            continue
+        for lineno, tok in code_cites(path.read_text(encoding="utf-8")):
+            total += 1
+            base = os.path.basename(tok)
+            cands = index.get(base, set())
+            ok = bool(cands) and ("/" not in tok or any(c.endswith("/" + tok) or c.endswith(tok) for c in cands))
+            if ok:
+                live += 1
+            else:
+                dead.append((str(path), lineno, tok))
+    return {"total": total, "live": live, "dead": dead}
+
+
 def scan(knowledge_dir: str) -> list[dict]:
     root = Path(knowledge_dir)
     articles: list[dict] = []
     for path in sorted(root.rglob("*.md")):
-        if path.name in ("index.md", "log.md"):
+        if path.name in ("index.md", "log.md", "manifest.md", "areas.md", "scopes.md", "_index.md"):
+            continue
+        if path.relative_to(root).parts[0] in ("log", "facts", "manifest", "guide"):
             continue
         fm = parse_frontmatter(path)
         if fm is None:
@@ -150,7 +205,19 @@ def cli_main(argv: list[str] | None = None) -> int:
     ap.add_argument("--all", action="store_true",
                     help="with --worklist: include non-load_bearing articles too")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--source-root", action="append", default=[],
+                    help="with one or more roots: report *(code: path)* cites whose file no longer exists (warn-only)")
     args = ap.parse_args(argv)
+    if args.source_root:
+        res = liveness(args.knowledge_dir, args.source_root)
+        print(f"code-cite liveness — {res['total']} file-naming code: cites, {res['live']} resolve under "
+              f"{len(args.source_root)} root(s), {len(res['dead'])} do not:")
+        for p, ln, tok in res["dead"][: 60]:
+            print(f"  {p}:{ln}: {tok}")
+        if len(res["dead"]) > 60:
+            print(f"  … {len(res['dead']) - 60} more")
+        print("  → on touch: re-point the cite (the file moved) or downgrade the claim; warn-only.")
+        return 0
 
     if not Path(args.knowledge_dir).is_dir():
         print(f"provenance-report: knowledge dir not found: {args.knowledge_dir}",

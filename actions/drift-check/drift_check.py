@@ -424,7 +424,7 @@ def format_report(violations: list[dict], rows_total: int) -> str:
             "2. If the article doesn't yet exist for one of the paths above, "
             "write the first thin article in the same PR (~200 words). See "
             "`CLAUDE.md` for placement guidance.",
-            "3. Append an entry to `knowledge/log.md` listing what was touched.",
+            "3. Write a log entry file `knowledge/log/entries/YYYY-MM-DD-<slug>.md` listing what was touched.",
             "",
             "_If the matching is wrong (the code pattern is too broad or the "
             "article truly doesn't apply to this change), update the "

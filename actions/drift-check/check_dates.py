@@ -135,7 +135,7 @@ def scan(knowledge_dir: str, today: datetime.date) -> list[dict]:
     findings: list[dict] = []
     for path in sorted(root.rglob("*.md")):
         rel_parts = path.relative_to(root).parts
-        if path.name in ("index.md", "log.md") or rel_parts[0] in ("log", "facts"):
+        if path.name in ("index.md", "log.md", "manifest.md", "areas.md", "scopes.md", "_index.md") or rel_parts[0] in ("log", "facts", "manifest", "guide"):
             continue
         if parse_frontmatter(path) is None:
             continue

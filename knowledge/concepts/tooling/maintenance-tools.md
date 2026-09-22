@@ -1,9 +1,9 @@
 ---
-title: Maintenance tools — check-links, build-index, bump-updated, sweep-report, roll-log
+title: Maintenance tools — the local suite, the gate, and the session status
 description: "The local maintenance suite: link checking, index generation from frontmatter, updated:-date bumping, drift-sweep worklists, and log rotation — five stdlib-only tools sharing the validate_articles frontmatter parser"
 type: concept
 area: tooling
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 affects:
   - 'actions/drift-check/check_links.py'
@@ -21,6 +21,14 @@ affects:
   - 'scripts/check-trailer'
   - 'actions/drift-check/check_dates.py'
   - 'scripts/check-dates'
+  - 'actions/drift-check/facts_overlap.py'
+  - 'actions/drift-check/kb_status.py'
+  - 'actions/drift-check/kb_paths.py'
+  - 'actions/drift-check/bootstrap.py'
+  - 'actions/drift-check/tests/**'
+  - 'scripts/kb-status'
+  - 'scripts/bootstrap'
+  - 'scripts/pre-commit-gate'
   # hooks README documents the whole tool family now, not just drift-check —
   # shared ownership with tooling/drift-check.md (multi-article ownership is fine)
   - 'templates/hooks/**'
@@ -79,21 +87,36 @@ failure so every tool is CI-able.
 | `check-dates` | Flags time-bombed prose: a past date co-occurring with a future-tense marker (will/expected/retires/deadline/by then/…) on one line; ISO + month-year dates; frontmatter, code, provenance tags, dated log headings masked; `--today` time-travel for previews. Marker list pruned on the first 98-article audit (39→13): "ships", "before"/"pre-", "not yet" are majority-noise in real prose (contains-sense, historical statements, attribution dates); quoted speech remains a known noise source. Warn-only by design — findings appear because *time passed*, so it belongs in the periodic sweep and non-blocking CI, never the commit gate | A hard vendor date sitting future-tense across 4+ articles for three weeks after it passed |
 | `build-facts` | Concatenates articles' `## Facts` sections per `area:` into generated `knowledge/facts/<area>.md` (sentinel first line; orphan cleanup; `--check` gate). Semantics: [[facts-register]] | Needle queries paying 20–60KB prose loads for one-line answers |
 
+## Added 2026-09-21 (from the field repo's tooling day)
+
+| Tool | Job |
+| --- | --- |
+| `build-index` (rewritten) | One generated `_index.md` per content directory, recursive; scope lines from `scopes.md`; F/D coverage; orphan removal. `--check` also fails on a content dir without a scope line. Design: [[index-is-a-cache]] |
+| `build-facts` (extended) | Also renders `## In plain terms` → `guide/<area>.md`; a plain-terms bullet with a backtick or tag fails. Design: [[two-readers-one-article]] |
+| `roll-log` (rewritten) | Entries are files under `log/entries/`; `--check` validates headers (gate); `roll-log` renames files older than 14 days into `log/YYYY-MM/`; `--long` lists entries over 400 words. Design: [[log-as-files]] |
+| `check-trailer` v2 | The `Knowledge:` trailer must name an article that was touched — dirty, committed within `--touch-window-hours`, or `updated:` today; `--names-only` restores v1. Design: [[hub-knowledge-base]] |
+| `sweep-report --facts-overlap` | Bullets restating their own article's prose (≥80 % / ≥50 % token overlap; frontmatter excluded; `--pairs` shows them) |
+| `sweep-report --size` | Largest articles; flags `>4000` words, `no-Facts`, `Facts-at-N%` past the midpoint |
+| `sweep-report --plain-terms` | Articles with `*(field:…)*` claims and no `## In plain terms` |
+| `provenance-report --source-root` | `code:` cites whose file no longer exists under the roots (basename / path-suffix; warn-only) |
+| `kb-status` | ~25-line session-start status: entry points, write gesture, stalest, stale dates, worklist heads, latest entries, enforcement installed. Design: [[token-budget-per-surface]] |
+| `bootstrap` | Installs the gate hook, product-repo trailer hooks and session hooks, the user-level skill; `--check` is what `kb-status` runs. Repos from `.living-doc.json` / `KB_PRODUCT_REPOS` |
+| `tests/` | 31 stdlib unit tests, run by `pre-commit-gate` and CI |
+
 ## Design notes
 
-- **`build-index` markers, not whole-file generation.** The index keeps
-  hand-written prose; only the marked table blocks regenerate. Adopting is
-  incremental — wrap one table, leave the rest.
+- **`build-index` used markers inside a hand-written index until 2026-09-21.** The hand-written
+  sections dropped five articles unnoticed; the index is now wholly generated, per directory
+  ([[index-is-a-cache]]).
 - **`description:` is the new (optional) frontmatter field** backing
   `build-index` — see the schema. It doubles as the retrieval hook an
   agent reads to decide relevance without opening the article.
-- **`bump-updated` deliberately skips** `index.md` / `log.md` and any file
+- **`bump-updated` deliberately skips** generated files (`_index.md`, `facts/`, `guide/`), `scopes.md`, `log/` and any file
   without an `updated:` line — it can be pointed at a whole staged set
   safely.
-- **`roll-log`'s conservation check** re-parses everything after writing
-  and compares entry-text sets; a mismatch aborts with instructions to
-  restore from git. This is the property that makes automated archiving
-  trustworthy.
+- **`roll-log` no longer needs a conservation check**: entries are files and rolling is a
+  rename ([[log-as-files]]). The concatenating version's check was the property that made
+  rewriting archives trustworthy; not rewriting is better.
 - **`check-links` treats ambiguity as failure**: a `[[name]]` matching two
   articles is unreliable navigation even though it "resolves."
 

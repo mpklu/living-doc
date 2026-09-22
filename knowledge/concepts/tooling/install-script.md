@@ -3,7 +3,7 @@ title: install.sh — curl-able adoption installer
 description: "`install/install.sh` internals: bash 3.2+, manifest-driven, atomic per-file write, idempotent re-run, detection bias toward brownfield"
 type: concept
 area: tooling
-updated: 2026-04-29
+updated: 2026-09-21
 status: thin
 affects:
   - 'install/**'
@@ -55,3 +55,12 @@ Existing files are skipped by default with a clear notice. `--force` opts into o
 - `install/install.sh` — the script
 - `install/manifest.txt` — the file-list contract
 - `install/README.md` — adopter-facing usage
+
+## 2026-09-21 — manifest: new core files, two new groups
+
+`core` ships `knowledge/scopes.md` and `knowledge/log/entries/.gitkeep` in place of `index.md` and
+`log.md`. Two groups added: `maintenance` (every tool module and wrapper plus `pre-commit-gate`,
+add-only, wrappers `exec`) and `tests` (the tools' unit tests). `install.sh` itself is unchanged —
+it is manifest-driven, which is what this addition tests. Group names are referenced by `install.sh`
+only for the pre-existing groups; the new ones are opt-in via the manifest until the installer grows
+a selector for them.

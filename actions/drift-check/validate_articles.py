@@ -183,7 +183,7 @@ def validate_repo(knowledge_dir: str) -> dict:
         # articles and don't need frontmatter. Likewise log/ archives
         # (rolled entries, roll-log) and generated facts/ files
         # (build-facts output carries a sentinel, not frontmatter).
-        if article.name in {"index.md", "log.md"}:
+        if article.name in {"index.md", "log.md", "manifest.md", "areas.md", "scopes.md", "_index.md"}:
             continue
         rel_parts = article.relative_to(knowledge).parts
         if rel_parts[0] in ("log", "facts"):

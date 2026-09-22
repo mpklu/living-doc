@@ -96,7 +96,7 @@ def cli_main(argv: list[str] | None = None) -> int:
             path.relative_to(kroot)
         except ValueError:
             continue
-        if path.suffix != ".md" or path.name in ("index.md", "log.md"):
+        if path.suffix != ".md" or path.name in ("index.md", "log.md", "manifest.md", "areas.md", "scopes.md", "_index.md") or any(part in ("log", "facts", "manifest", "guide") for part in path.parts):
             continue
         found = find_updated_line(path)
         if not found:

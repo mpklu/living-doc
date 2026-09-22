@@ -81,7 +81,7 @@ def lint(knowledge_dir: str, source_roots: list[str]) -> list[dict]:
 
     for article in sorted(knowledge.rglob("*.md")):
         rel_parts = article.relative_to(knowledge).parts
-        if article.name in ("index.md", "log.md") or rel_parts[0] in ("log", "facts"):
+        if article.name in ("index.md", "log.md", "manifest.md", "areas.md", "scopes.md", "_index.md") or rel_parts[0] in ("log", "facts", "manifest", "guide"):
             continue
         fm = parse_frontmatter(article)
         if not fm:

@@ -16,7 +16,7 @@ For the methodology overview (decision tree, anti-patterns, agent decision rules
 
 ## What the methodology is (one-paragraph recap)
 
-A `knowledge/` directory at the project root, treated as the source of truth alongside the code. Articles in `concepts/` (atomic) and `connections/` (cross-cutting), an `index.md`, and a dated `log.md`. The discipline: **every code change that alters behaviour, config, or architecture updates the relevant article in the same task**, with the rule encoded in `CLAUDE.md` so an AI agent enforces it on every interaction. Reading the rule on every change makes the rule durable in a way human discipline alone has never been.
+A `knowledge/` directory at the project root, treated as the source of truth alongside the code. Articles in `concepts/` (atomic) and `connections/` (cross-cutting), an `index.md`, and a dated `log/entries/`. The discipline: **every code change that alters behaviour, config, or architecture updates the relevant article in the same task**, with the rule encoded in `CLAUDE.md` so an AI agent enforces it on every interaction. Reading the rule on every change makes the rule durable in a way human discipline alone has never been.
 
 ## Why greenfield is the easier path
 
@@ -60,8 +60,9 @@ knowledge/
 │   ├── {your-project-name}/      # internal concepts
 │   └── {first-external-system}/  # external integrations
 ├── connections/
-├── index.md                       # navigation hub
-└── log.md                         # dated compile log
+├── scopes.md                      # curated: one scope line per content directory
+├── _index.md                      # generated per directory by build-index — the entry point
+└── log/entries/                   # build log: one dated file per entry (never rendered)
 ```
 
 The two-tier split — your project's internals as one concept group, each external system you integrate with as its own group — maps cleanly to almost any project. Add more groups as you go (`tooling/` for cross-cutting research, `project/` for stakeholder-and-roadmap material).
@@ -101,7 +102,7 @@ This step is where the methodology's biggest greenfield advantage lives: article
 
 ### 5. Establish the index and compile log on the first commit
 
-`index.md` is a table grouping articles by area, with one-line summaries and an "updated" date column. `log.md` starts with a single dated entry: "compile: initial knowledge base." Both files are tiny but load-bearing.
+`_index.md` is generated in every content directory by `scripts/build-index` from frontmatter (title, status, updated, facts/decisions coverage) with the directory's scope line from `scopes.md`. `log/entries/` starts with a single dated entry filed entry: "compile: initial knowledge base." Both files are tiny but load-bearing.
 
 The index gives a stranger (or future-you, three months from now) a starting point. The compile log gives a chronological story of decisions, which `git log` only approximates because git tracks files, not topics.
 
@@ -127,7 +128,7 @@ Once the contract is in place, lean into it. When you ask the agent to add a fea
 
 - Write the code change.
 - Update the matching article(s) per the mapping table.
-- Append an entry to `log.md` summarizing what was touched.
+- Write a log entry file (`log/entries/YYYY-MM-DD-<slug>.md`, first line `## YYYY-MM-DD — <title>`) summarizing what was touched.
 - Optionally run the drift check (step 8).
 
 You can be lazy with prompts — _"add caching to the customer search"_ — and get correct documentation as a side effect, because the rule says so.
@@ -144,7 +145,7 @@ The cost asymmetry inverts here. Writing docs is now cheap because the agent doe
    When unsure between placements, pick the closest fit and write the article. The user moves it on review.
 2. Write a first thin article (200–500 words) in the same task — capturing the *why* (context, constraints, alternatives ruled out), not only the post-change state of the code.
 3. Add a row to the article-mapping table.
-4. Note the addition in `log.md`.
+4. Add a scope line to `scopes.md` if the directory is new; write a log entry file.
 
 This is the same behaviour as brownfield's "document on touch" — it just happens less often on greenfield because the article set was complete at the start. The first principle still holds: never miss a change; the user can always review and override.
 
@@ -168,14 +169,14 @@ Drop this in as a starter, replacing the `{{...}}` placeholders. The article-map
 ## Source of Truth
 
 The knowledge base in `knowledge/` is the source of truth for this project.
-It must always mirror the code. Entry point: `knowledge/index.md`.
-Compile log: `knowledge/log.md`.
+It must always mirror the code. Entry point: `knowledge/_index.md`, generated in every content directory
+(scope lines from `knowledge/scopes.md`). Build log: one file per entry under `knowledge/log/entries/`.
 
 ### The rule
 
 Every code change that alters behaviour, config, models, or architecture
 must update the relevant `knowledge/concepts/*.md` article(s) in the same
-task and append an entry to `knowledge/log.md`. Don't batch knowledge
+task and write a log entry file under `knowledge/log/entries/`. Don't batch knowledge
 updates for later.
 
 ### What lives where
@@ -208,7 +209,7 @@ contradict what I just built?" Check signatures, field lists, config
 tables, folder structure, and env var names. Real data beats the article
 — if a field the article says is required turns out to be absent in
 real payloads, update the article to match reality, not the other way
-around. Add a compile entry to `knowledge/log.md` listing the articles
+around. Write a log entry file (`knowledge/log/entries/YYYY-MM-DD-<slug>.md`) listing the articles
 touched.
 
 ## Project Structure
@@ -257,7 +258,7 @@ If your greenfield work spans multiple repos that interact (e.g., a service plus
 - Each repo gets its own `CLAUDE.md` and `knowledge/` (primary).
 - The workspace root gets a thin `CLAUDE.md` and `knowledge/connections/` (only if the repos genuinely interact).
 
-This applies the same way for greenfield as for brownfield. For the full pattern — including sample workspace-level `CLAUDE.md`, `index.md`, and `connections/` article templates — see the "A note on multi-repo workspaces" section in `BROWNFIELD_ADOPTION_GUIDE.md`. The guidance is identical regardless of whether the repos are new or existing.
+This applies the same way for greenfield as for brownfield. For the full pattern — including sample workspace-level `CLAUDE.md`, `scopes.md`, and `connections/` article templates — see the "A note on multi-repo workspaces" section in `BROWNFIELD_ADOPTION_GUIDE.md`. The guidance is identical regardless of whether the repos are new or existing.
 
 If your repos are loosely coupled (no cross-repo articles ever needed), skip the workspace layer entirely. Each repo stands alone.
 

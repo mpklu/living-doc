@@ -20,7 +20,7 @@ Inline tags grading how a load-bearing claim was verified — `*(code: path:line
 
 The agent-instruction file at the project root. Contains the same-task rule, the article-mapping table, and any project-specific conventions. Read by the AI agent on every interaction. Lower-scope `CLAUDE.md` files (repo-level) take precedence over higher-scope ones (workspace-level).
 
-### Compile log (`log.md`)
+### Compile log (`log/entries/`)
 
 A dated, append-only log inside `knowledge/`. Each entry records what changed, why, and which articles were touched. Captures architectural narrative and rationale that git commit messages don't preserve. Read sequentially, it tells the story of the project's decisions.
 
@@ -42,7 +42,7 @@ The brownfield principle: write articles for code paths only when you're about t
 
 ### Drift sweep
 
-A periodic ritual (once a sprint or once a month, ~30 minutes) where someone scans recently-changed code paths against their corresponding articles for contradictions. Catches the cases where the same-task rule slipped. The drift fix is logged in `log.md`.
+A periodic ritual (once a sprint or once a month, ~30 minutes) where someone scans recently-changed code paths against their corresponding articles for contradictions. Catches the cases where the same-task rule slipped. The drift fix is logged in `log/entries/`.
 
 ### Facts register
 

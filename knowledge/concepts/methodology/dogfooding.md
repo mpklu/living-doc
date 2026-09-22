@@ -3,7 +3,7 @@ title: Dogfooding the methodology
 description: "Why this repo applies its own methodology; what's different about a meta-repo"
 type: concept
 area: methodology
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 affects:
   - 'CLAUDE.md'
@@ -59,6 +59,19 @@ articles for all of that on day one. We write articles when the seam
 is touched. The retrofit start (2026-04-29) was triggered by the
 upcoming next-phase bundle — that's the first seam, and articles for
 it are the first batch.
+
+## Measure before you lint (2026-09-21)
+
+Two designs from the field repo's tooling day were wrong on first cut, and
+both were caught only because the number was checked before the rule
+shipped. A "Facts restate the prose" metric reported 39 near-verbatim
+bullets; four of the five hits in the worst article were the frontmatter
+`description:` line, not prose. Excluding frontmatter and short bullets
+gave 31. A gate warning for log entries over 250 words flagged 52 of 85
+entries on its first run — the median entry was already ~300 words — and
+was moved out of the gate into a `--long` worklist at 400. The rule that
+follows: a lint ships with the measurement that set its threshold, and a
+threshold that flags the majority is describing the corpus, not a defect.
 
 ## What this article protects
 

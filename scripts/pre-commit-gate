@@ -31,7 +31,9 @@ run "validate-articles"  scripts/validate-articles
 run "check-affects"      scripts/check-affects
 run "check-links"        scripts/check-links --exclude 'log/*'
 run "build-index --check" scripts/build-index --check
+run "kb-tool unit tests" python3 -m unittest discover -q -s actions/drift-check/tests
 run "build-facts --check" scripts/build-facts --check
+run "roll-log --check"   scripts/roll-log --check
 run "drift-check (staged)" scripts/drift-check --base-ref HEAD
 
 if [ "$fail" -ne 0 ]; then

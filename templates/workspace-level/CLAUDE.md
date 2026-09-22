@@ -31,9 +31,8 @@ primary source. The rules below augment, never override.
 - **Concept articles** for any single repo live in that repo's own
   `knowledge/concepts/`. **Do not duplicate or migrate them upward** —
   they strand when repos move to a different workspace.
-- The workspace compile log (`workspace/knowledge/log.md`) records only
-  cross-repo coordination; per-repo changes go in each repo's own
-  `log.md`.
+- The workspace build log (`workspace/knowledge/log/entries/`, one file per entry) records only
+  cross-repo coordination; per-repo changes go in each repo's own `log/entries/`.
 
 ## When a repo is removed from this workspace
 

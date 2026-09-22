@@ -17,5 +17,6 @@ Use this one liner in Claude Code:
 Apply living-doc: https://github.com/mpklu/living-doc/tree/main/skills/living-docs
 ```
 
-For details see [Full README](./README_OLD.md)
+For details see [Full README](./README_OLD.md). One knowledge base for several repos? See
+[`HUB_ADOPTION_GUIDE.md`](./HUB_ADOPTION_GUIDE.md).
 

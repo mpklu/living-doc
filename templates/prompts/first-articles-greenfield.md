@@ -76,8 +76,8 @@ Place each at `knowledge/concepts/{area}/{topic}.md`. Create the area subdirecto
 
 ## After writing
 
-1. Append one entry to `knowledge/log.md` (newest at top) listing the three articles, the questions you asked me, and any decisions still pending.
-2. Update `knowledge/index.md` so the new articles are reachable.
+1. Write ONE log entry file `knowledge/log/entries/YYYY-MM-DD-<slug>.md` whose first line is `## YYYY-MM-DD — <title>`, then bullets listing the three articles, the questions you asked me, and any decisions still pending.
+2. Add a scope line to `knowledge/scopes.md` for each new directory (`- **concepts/<area>** — <one line>`), then run `scripts/build-index` (generates `_index.md` in every content directory).
 3. Run `scripts/validate-articles` (if present) to verify frontmatter — should print `✅ All N article(s) have valid frontmatter.`
 4. Suggest a single commit: `git add -A && git commit -m 'living-docs: seed first 3 articles'` — but don't run it; let me review.
 

@@ -5,7 +5,7 @@ copy from `templates/`, run the Skill at `skills/living-docs/`, or wire
 in the GitHub Action at `actions/drift-check/`.
 
 This repo dogfoods the methodology it defines (brownfield retrofit since
-2026-04-29 — see `knowledge/log.md`). Guides/overview prose gets articles
+2026-04-29 — see `knowledge/log/`). Guides/overview prose gets articles
 on touch, not speculatively. Methodology decisions →
 `knowledge/concepts/methodology/`; tooling internals →
 `knowledge/concepts/tooling/`; cross-cutting → `knowledge/connections/`.
@@ -22,7 +22,8 @@ for adopter-facing concepts (canonical surface), articles win for *why*.
 
 Every code or methodology change that alters behaviour, structure, or a
 documented decision updates the matching `knowledge/concepts/*.md`
-article(s) in the same task and appends an entry to `knowledge/log.md`.
+article(s) in the same task and writes a log entry file under `knowledge/log/entries/`
+(`YYYY-MM-DD-<slug>.md`, first line `## YYYY-MM-DD — <title>`, ~150 words).
 If the affected seam doesn't yet have an article, write the first thin
 one in the same task. Don't defer.
 
@@ -42,7 +43,7 @@ The same-task rule is a *principle*; this checklist is the *procedure*
    is the legacy secondary source.) If yes, open that article.
 3. Did this change alter behaviour, configuration, models, structure,
    or a documented decision?
-4. If yes: stage the article update + a `log.md` entry **in this same
+4. If yes: stage the article update + a `log/entries/` file **in this same
    commit**.
 5. If no article exists for the touched code path: write a thin one
    now (~200 words). Don't open a follow-up issue; don't defer.
@@ -70,7 +71,7 @@ the drift compounds.
 | `LIVING_DOCS_OVERVIEW.md`, `*ADOPTION_GUIDE.md`, `GLOSSARY.md` (methodology surface) | Article in `knowledge/concepts/methodology/` matching the decision |
 | `templates/**` | Article in `knowledge/concepts/methodology/` (template content reflects methodology decisions) |
 | `actions/drift-check/drift_check.py` | `knowledge/concepts/tooling/drift-check.md` (write on touch) |
-| `actions/drift-check/{check_links,build_index,bump_updated,sweep_report,roll_log}.py`, `scripts/{check-links,build-index,bump-updated,sweep-report,roll-log}` | `knowledge/concepts/tooling/maintenance-tools.md` |
+| `actions/drift-check/*.py` other than `drift_check.py` (incl. `tests/`), `scripts/*` other than `drift-check` | `knowledge/concepts/tooling/maintenance-tools.md` |
 | `skills/living-docs/SKILL.md` | `knowledge/concepts/tooling/skill.md` (write on touch) |
 
 ### Where new articles go
@@ -110,8 +111,9 @@ actions/drift-check/          GitHub Action + all maintenance-tool implementatio
 scripts/                      thin CLI wrappers (drift-check, validate-articles, check-links,
                               build-index, bump-updated, sweep-report, roll-log, build-facts,
                               provenance-report, check-affects, check-trailer, check-dates,
-                              pre-commit-gate)
+                              kb-status, bootstrap, pre-commit-gate)
 schemas/                      article-frontmatter JSON schema
 knowledge/                    living docs (this repo dogfoods)
-  concepts/{methodology,tooling}/ · connections/ · facts/ · index.md · log.md
+  _index.md (generated, one per content dir) · scopes.md (curated) · concepts/{methodology,tooling}/ ·
+  connections/ · facts/ · guide/ · log/entries/ (one file per entry) · log/YYYY-MM/ (rolled)
 ```

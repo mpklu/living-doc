@@ -11,7 +11,7 @@ A practical guide for retrofitting the **living-knowledge-base** methodology ont
 
 ## What the methodology is (one-paragraph recap)
 
-A `knowledge/` directory at the project root, treated as the source of truth alongside the code. Articles in `concepts/` (atomic) and `connections/` (cross-cutting), an `index.md`, and a dated `log.md`. The discipline: **every code change that alters behaviour, config, or architecture updates the relevant article in the same task**, with the rule encoded in `CLAUDE.md` so an AI agent enforces it on every interaction. Reading the rule on every change makes the rule durable in a way human discipline alone has never been.
+A `knowledge/` directory at the project root, treated as the source of truth alongside the code. Articles in `concepts/` (atomic) and `connections/` (cross-cutting), an `index.md`, and a dated `log/entries/`. The discipline: **every code change that alters behaviour, config, or architecture updates the relevant article in the same task**, with the rule encoded in `CLAUDE.md` so an AI agent enforces it on every interaction. Reading the rule on every change makes the rule durable in a way human discipline alone has never been.
 
 ## Why brownfield is harder than greenfield
 
@@ -53,14 +53,14 @@ A starter `CLAUDE.md` fragment for a brownfield project:
 ## Source of Truth
 
 The knowledge base in `knowledge/` is the source of truth for this project.
-It must always mirror the code. Entry point: `knowledge/index.md`.
-Compile log: `knowledge/log.md`.
+It must always mirror the code. Entry point: `knowledge/_index.md`, generated in every content directory
+(scope lines from `knowledge/scopes.md`). Build log: one file per entry under `knowledge/log/entries/`.
 
 ### The rule
 
 Every code change that alters behaviour, config, models, or architecture
 must update the relevant `knowledge/concepts/*.md` article(s) in the same
-task and append an entry to `knowledge/log.md`.
+task and write a log entry file under `knowledge/log/entries/`.
 
 If the affected area does not yet have an article, write the first thin
 article in the same task. Don't batch knowledge updates for later.
@@ -78,7 +78,7 @@ the table grows from empty over the first 2-3 months.)
 
 Real data beats the article. If a field the article says is required
 turns out to be absent in real payloads, update the article to match
-reality, not the other way around. Add a compile entry to log.md.
+reality, not the other way around. Write a log entry file under `knowledge/log/entries/`.
 ```
 
 ### 3. Create the empty `knowledge/` skeleton
@@ -87,8 +87,8 @@ reality, not the other way around. Add a compile entry to log.md.
 knowledge/
 ├── concepts/
 ├── connections/
-├── index.md    # one line: "knowledge base under construction — retrofit start: YYYY-MM-DD"
-└── log.md      # one entry: "established knowledge base, retrofit begin"
+├── scopes.md   # one scope line per content directory (build-index heads each _index.md with it)
+└── log/entries/ # one file: "YYYY-MM-DD-retrofit-begin.md — established knowledge base"
 ```
 
 Empty is fine. Existence beats content. The directory has to exist for the agent's instruction file to compile cleanly.
@@ -143,18 +143,18 @@ Sample PR template addition:
 
 - [ ] Tests pass
 - [ ] Linter passes
-- [ ] **Knowledge updated** — did this change affect anything covered by an article in `knowledge/`? If yes, the matching article and `log.md` are updated in this PR. If the affected area is not yet covered, a first thin article has been written.
+- [ ] **Knowledge updated** — did this change affect anything covered by an article in `knowledge/`? If yes, the matching article and `log/entries/` are updated in this PR. If the affected area is not yet covered, a first thin article has been written.
 ```
 
 ### 10. Establish a periodic drift sweep
 
-Once a sprint or once a month, spend ~30 minutes scanning recently-changed files against their corresponding articles. Articles that drifted (the same-task rule slipped on a particular PR) get fixed; the fix is logged in `log.md`. This is the safety net for the cases where the rule wasn't followed perfectly.
+Once a sprint or once a month, spend ~30 minutes scanning recently-changed files against their corresponding articles. Articles that drifted (the same-task rule slipped on a particular PR) get fixed; the fix is logged in `log/entries/`. This is the safety net for the cases where the rule wasn't followed perfectly.
 
 A simple drift-sweep ritual:
 
 1. List articles by `updated:` frontmatter date, oldest first.
 2. For the oldest 5: open the article, open the corresponding code path, scan for contradictions (signatures, field names, env vars, config keys).
-3. Fix any drift found, bump the `updated:` date, log the sweep in `log.md`.
+3. Fix any drift found, bump the `updated:` date, log the sweep as an entry file under `log/entries/`.
 4. Stop after 30 minutes. Whatever's left waits for next sweep.
 
 ### 11. Watch for three specific failure modes
@@ -180,7 +180,7 @@ If no: figure out which step is breaking. It's almost always step 1 (buy-in erod
 When the methodology is working on a brownfield project, you'll notice:
 
 - New hires read 3–5 articles and can answer architectural questions on day two, instead of crawling through a year of pull requests.
-- When a developer asks "why does this work this way?", the answer is in `log.md` with a date.
+- When a developer asks "why does this work this way?", the answer is a dated bullet in the article's `## Decisions`, and the log entry it points to.
 - The team stops thinking about the rule consciously — it's just how PRs get reviewed.
 - Active code is well-covered (60–80%); stable, untouched code is still mostly undocumented, and that's fine.
 - A departing developer can hand off cleanly because the architectural reasoning lives in articles, not in their head.
@@ -204,8 +204,9 @@ workspace/
 ├── CLAUDE.md                # thin — workspace-level conventions only
 ├── knowledge/
 │   ├── connections/         # ONLY cross-repo articles that need both repos to make sense
-│   ├── index.md
-│   └── log.md
+│   ├── _index.md      # generated
+│   ├── scopes.md
+│   └── log/entries/
 ├── repo-a/
 │   ├── CLAUDE.md            # primary — full repo-a rules and article-mapping
 │   ├── knowledge/           # all repo-a concepts
@@ -289,9 +290,8 @@ primary source. The rules below augment, never override.
   `workspace/knowledge/connections/`.
 - Concept articles for any single repo live in that repo's own
   `knowledge/concepts/`. Do not duplicate or migrate them upward.
-- The workspace compile log (`workspace/knowledge/log.md`) records only
-  cross-repo coordination; per-repo changes go in each repo's own
-  `log.md`.
+- The workspace build log (`workspace/knowledge/log/entries/`) records only
+  cross-repo coordination; per-repo changes go in each repo's own `log/entries/`.
 
 ## When a repo is removed from this workspace
 
@@ -300,7 +300,7 @@ repo. Delete affected connection articles, or mark them
 "premise no longer holds in this workspace" with a date.
 ```
 
-### Sample: workspace `knowledge/index.md`
+### Sample: workspace `knowledge/scopes.md` (its `_index.md` is generated)
 
 ```markdown
 # Workspace knowledge index
@@ -319,9 +319,9 @@ knowledge lives inside each repo's own `knowledge/` directory.
 
 For repo-specific concepts, see each repo's own index:
 
-- `repo-a/knowledge/index.md`
-- `repo-b/knowledge/index.md`
-- `repo-c/knowledge/index.md`
+- `repo-a/knowledge/_index.md`
+- `repo-b/knowledge/_index.md`
+- `repo-c/knowledge/_index.md`
 ```
 
 ### Sample: a workspace `connections/` article
@@ -354,7 +354,7 @@ repo-b classifies and routes (see
 
 The contract between repo-a and repo-b is the `InboundEvent` schema.
 Owned by repo-a; consumed by repo-b. Breaking changes require
-coordinated PRs in both repos and a workspace `log.md` entry.
+coordinated PRs in both repos and a workspace log entry file.
 
 ## When this article goes stale
 
@@ -362,7 +362,7 @@ If either repo is removed from the workspace, this article's premise
 no longer holds. Mark it as such or delete it.
 ```
 
-### Sample: workspace `log.md` entry
+### Sample: workspace log entry file
 
 ```markdown
 ## [2026-04-25] connection | repo-a → repo-b InboundEvent contract
@@ -371,7 +371,7 @@ no longer holds. Mark it as such or delete it.
 - Updated repo-b's ingest to read it when present, fall back when not
 - Cross-repo PRs: repo-a#142, repo-b#87 (merged together)
 - Updated [[connections/webhook-to-ticket-pipeline]] versioning section
-- Per-repo logs: repo-a/knowledge/log.md, repo-b/knowledge/log.md
+- Per-repo logs: repo-a/knowledge/log/entries/, repo-b/knowledge/log/entries/
 ```
 
 ## Closing thought

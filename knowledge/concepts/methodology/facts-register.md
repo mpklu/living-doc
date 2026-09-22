@@ -3,7 +3,7 @@ title: Facts register — the read-path layer between index and prose
 description: "Optional per-article `## Facts` section (atomic, provenance-tagged lookup facts) concatenated per area into generated knowledge/facts/<area>.md files — so a needle query loads one ~3KB surface instead of 20–60KB of prose. Read-path economics: writing is cheap now; context tokens at read time are the scarce resource"
 type: concept
 area: methodology
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 load_bearing: false
 references:
@@ -86,6 +86,18 @@ both **generated from the articles** — duplication without drift.
   provenance" failure; carry the tag ([[claim-provenance]]).
 - **Speculative facts sections** — don't add empty/placeholder sections
   to articles you aren't touching (same rule as speculative articles).
+
+## Two renderings (2026-09-21)
+
+The register is the *agent's* surface — that is what its identifiers and
+tags are for. A KB with a non-engineering reader adds `## In plain terms`
+beside `## Facts`; `build-facts` renders it to `guide/<area>.md` and
+rejects identifiers or tags there. Design and evidence:
+[[two-readers-one-article]]. Overlap between a Facts bullet and the
+article's own prose is a worklist (`sweep-report --facts-overlap`), not a
+gate: in the field repo 4 % of bullets were near-verbatim restatements,
+mostly rows of reference tables in operator docs, where the mirror is
+deliberate.
 
 ## Tooling
 

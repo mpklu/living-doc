@@ -3,7 +3,7 @@ title: Procedural compliance — checklist, not principle
 description: "Same-task rule expressed as a checklist + red-flag phrases, not just principle"
 type: concept
 area: methodology
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 affects:
   - 'CLAUDE.md'
@@ -131,3 +131,10 @@ check-links · index/facts freshness · drift-check on the staged diff),
 and CLAUDE.md's checklist intro says so. The principle→procedure→
 mechanism ladder is complete; the red-flag phrases now describe
 thoughts the gate interrupts rather than thoughts discipline must catch.
+
+## 2026-09-21 — checklist step 4 names a file, not a section
+
+"Stage the article update + a `log.md` entry" became "+ a `log/entries/` file" in this repo's
+`CLAUDE.md` and both template `CLAUDE.md`s. The procedure is unchanged; the gesture it names is now a
+single file write with nothing to parse ([[log-as-files]]). The rule text (`### The rule`) says the
+same: "write a log entry file under `knowledge/log/entries/`".

@@ -3,7 +3,7 @@ title: Claim provenance — grade claims by how they were verified
 description: "Inline provenance tags — *(code: path:line)* · *(bench: date)* · *(field: incident)* · *(reported: who)* · *(inferred)* — so readers (human or agent) can calibrate trust per claim, not per article. The fix for AI-written docs' worst failure mode: confident-sounding inference read as fact later"
 type: concept
 area: methodology
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 load_bearing: true
 references:
@@ -59,6 +59,14 @@ A re-send should re-ingest the orphaned response *(inferred)*.
 Machine-readable by one regex — `\*\((code|bench|field|reported|inferred)[:)]`
 — which is what makes the tags *actionable* rather than decorative
 (see Tooling below).
+
+## A sixth keyword for decisions (2026-09-21)
+
+`*(decision: who)*` tags a dated bullet in an article's `## Decisions`
+section — the same idea applied to a choice instead of a claim: who
+settled it, so a reader can weigh it. It is not counted by
+`provenance-report` (a decision is not a claim to verify) and never
+appears in `## In plain terms`. Design: [[decisions-in-the-article]].
 
 ## Binding rules
 

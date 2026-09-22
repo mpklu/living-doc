@@ -3,7 +3,7 @@ title: Frontmatter as source of truth
 description: "Article metadata schema; canonical home for `affects`, `status`, `load_bearing`"
 type: concept
 area: methodology
-updated: 2026-04-29
+updated: 2026-09-21
 status: thin
 affects:
   - 'schemas/article-frontmatter.schema.json'
@@ -112,3 +112,10 @@ code?". Both run zero-deps.
   reliable
 - `templates/{brownfield,greenfield}/knowledge/concepts/example.md` —
   reference instances of the schema (planned addition to templates)
+
+## 2026-09-21 — the `knowledge/` shape the templates ship
+
+Templates no longer ship `index.md` or `log.md`. They ship `scopes.md` (one curated scope line per
+content directory, keyed by path) and an empty `log/entries/`; `_index.md` is generated in every
+content directory from frontmatter by `build-index`, so frontmatter is now the *only* source the
+routing surface reads. Why: [[index-is-a-cache]], [[log-as-files]].

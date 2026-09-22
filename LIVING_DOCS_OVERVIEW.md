@@ -38,7 +38,7 @@ Three load-bearing pieces:
 
 1. **The same-task rule.** Encoded in `CLAUDE.md`. Every behaviour-altering change updates the matching article in the same PR/task — not "later." The rule is enforced by the agent reading `CLAUDE.md` on every interaction.
 2. **The article-mapping table.** A table in `CLAUDE.md` of the form: "When you change X, update article Y." The agent uses this to identify which article corresponds to which code path. Empty at the start of a brownfield retrofit; written before code in greenfield.
-3. **The compile log (`log.md`).** A dated, append-only log of changes and which articles were touched. Captures architectural narrative and rationale that git commit messages don't preserve.
+3. **The compile log (`log/entries/`).** One dated file per entry — append-only, never rendered — a log of changes and which articles were touched. Captures architectural narrative and rationale that git commit messages don't preserve.
 
 Two file conventions:
 
@@ -105,7 +105,7 @@ The first-principle rule applies throughout: **default to writing**. When uncert
 
    Then add a row to the article-mapping table in `CLAUDE.md` so future changes to the same code path know where to update.
 4. **Capture the why, not just the what.** The article should record context, constraints, and alternatives considered — not only the post-change state of the code. The code preserves the *what*; only the article preserves the *why*. When a claim is load-bearing, state how it was verified inline — `*(code: path:line)*`, `*(bench: date)*`, `*(field: incident)*`, `*(reported: who)*`, or honestly `*(inferred)*` — so future readers calibrate trust per claim (optional pattern; see `knowledge/concepts/methodology/claim-provenance.md`). Budget the prose by the derivability test — mechanics an agent could re-derive from the checkouts in minutes are a cache (thin facts + code-cites); rationale, constraints, and field observations are the irreplaceable asset (see `knowledge/concepts/methodology/what-cache-why-asset.md`).
-5. Append a one-line entry to `log.md` summarizing what was touched.
+5. Write a log entry file (`log/entries/YYYY-MM-DD-<slug>.md`) summarizing what was touched.
 6. Quick drift check: scan recently-changed code paths against their articles for contradictions; surface mismatches.
 
 ### When asked to set up or adopt the methodology
@@ -124,7 +124,8 @@ The first-principle rule applies throughout: **default to writing**. When uncert
 ## Companion documents
 
 - **`GREENFIELD_ADOPTION_GUIDE.md`** — full step-by-step for new projects, including a starter `CLAUDE.md` template and rationale for each step.
-- **`BROWNFIELD_ADOPTION_GUIDE.md`** — full step-by-step for existing projects, including the "document on touch" mindset, the drift-sweep ritual, the failure-mode catalog, and the multi-repo workspace pattern with sample workspace `CLAUDE.md`, `index.md`, and `connections/` article.
+- **`BROWNFIELD_ADOPTION_GUIDE.md`** — full step-by-step for existing projects, including the "document on touch" mindset, the drift-sweep ritual, the failure-mode catalog, and the multi-repo workspace pattern with sample workspace `CLAUDE.md`, `scopes.md`, and `connections/` article.
+- **`HUB_ADOPTION_GUIDE.md`** — one knowledge base documenting several repos it does not contain: `external:` affects entries, the `Knowledge:` commit trailer as the cross-repo seam, `bootstrap` and `kb-status`.
 
 Both companion guides are **operational** (they tell you how to do it, step by step). This overview is **meta** (it tells the agent *why* each rule exists, *which* guide to apply, and *what* anti-patterns to avoid in any variant).
 

@@ -2,7 +2,7 @@
 
 # Facts — methodology
 
-Atomic lookup facts extracted from the `methodology` articles' `## Facts` sections by `scripts/build-facts`. One small surface for needle queries; open the linked article for the why.
+Atomic lookup facts extracted from the `methodology` articles' `## Facts` sections by `scripts/build-facts` — the agent's grep surface: paths, ports, codes, defaults, each provenance-tagged. Open the linked article for the why; `guide/` has the same knowledge in plain terms.
 
 ## facts-register — [../concepts/methodology/facts-register.md](../concepts/methodology/facts-register.md)
 

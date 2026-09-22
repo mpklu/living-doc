@@ -3,7 +3,7 @@ title: drift-check — internals
 description: "`drift_check.py` internals: dual mapping sources, hand-rolled frontmatter parser, `**` glob matcher, free-text fallback"
 type: concept
 area: tooling
-updated: 2026-07-22
+updated: 2026-09-21
 status: thin
 affects:
   - 'actions/drift-check/drift_check.py'
@@ -204,3 +204,9 @@ shipped — see `local-vs-pr-enforcement.md` and
 - `actions/drift-check/example-usage.yml` — reference workflow
 - `schemas/article-frontmatter.schema.json` — input contract for
   the frontmatter parser
+
+## 2026-09-21 — advice text
+
+The violation report's third fix step now reads "write a log entry file
+`knowledge/log/entries/YYYY-MM-DD-<slug>.md`" instead of "append an entry to `knowledge/log.md`".
+Matching logic unchanged ([[log-as-files]]).

@@ -16,18 +16,20 @@ gradually rather than being populated speculatively.
 ## Source of Truth
 
 The knowledge base in `knowledge/` is becoming the source of truth for this
-project. As of the retrofit start (see `knowledge/log.md`), it covers a
+project. As of the retrofit start (see `knowledge/log/`), it covers a
 subset of the codebase. Code paths without articles are documented on touch
 — the next time someone changes them, that's when the first thin article
 gets written.
 
-Entry point: `knowledge/index.md`. Compile log: `knowledge/log.md`.
+Entry point: `knowledge/_index.md` — generated in every content directory by `scripts/build-index`
+(scope lines from `knowledge/scopes.md`); follow the tree to one article. Build log: one file per entry,
+`knowledge/log/entries/YYYY-MM-DD-<slug>.md`, first line `## YYYY-MM-DD — <title>`.
 
 ### The rule
 
 Every code change that alters behaviour, config, models, or architecture
 must update the relevant `knowledge/concepts/*.md` article(s) in the same
-task and append an entry to `knowledge/log.md`. If the affected code path
+task and write a log entry file under `knowledge/log/entries/`. If the affected code path
 does **not yet** have an article, write the first thin article in the same
 task — don't defer.
 
@@ -53,7 +55,7 @@ Run through it before every commit:
    article-mapping table below.) Open those articles.
 3. Did this change alter behaviour, configuration, models, structure,
    or a documented decision?
-4. If yes: stage the article update + a `log.md` entry **in this same
+4. If yes: stage the article update + a `log/entries/` file **in this same
    commit**.
 5. If no article exists for the touched code path: write a thin one
    now (~200 words). Don't open a follow-up issue; don't defer.
@@ -107,7 +109,7 @@ Write the first thin article in the same task. Place as:
 
 Capture the **why** — context, constraints, alternatives ruled out — not
 just the post-change state of the code. Add a row to the article-mapping
-table above. Note the addition in `log.md`.
+table above. New directory → add its scope line to `knowledge/scopes.md`. Write a log entry file.
 
 **Document on touch, not on inventory.** Don't write articles for code paths
 you're not touching. Don't run a documentation sprint. Articles are written
@@ -128,7 +130,7 @@ contradict what I just built?" Check signatures, field lists, config
 tables, folder structure, and env var names. **Real data beats the article**
 — if a field the article says is required turns out to be absent in real
 payloads, update the article to match reality, not the other way around.
-Add a compile entry to `knowledge/log.md` listing the articles touched.
+Write a log entry file (`knowledge/log/entries/YYYY-MM-DD-<slug>.md`) listing the articles touched.
 
 Schedule a periodic drift sweep (once a sprint or once a month, ~30
 minutes): scan articles by oldest `updated:` date first, fix any drift,
