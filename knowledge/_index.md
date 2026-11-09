@@ -6,4 +6,4 @@ Entry point. Follow the directory table down to one `_index.md` whose rows list 
 
 | Directory | Articles | F | D | Scope |
 | --- | --- | --- | --- | --- |
-| [concepts/](concepts/_index.md) | 22 | 3 | 0 | The methodology's own decisions and its tooling's internals, by area. |
+| [concepts/](concepts/_index.md) | 23 | 3 | 1 | The methodology's own decisions and its tooling's internals, by area. |

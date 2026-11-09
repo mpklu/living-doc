@@ -19,6 +19,7 @@ from pathlib import Path
 import bootstrap
 import build_index
 import check_dates
+import check_handbook
 import kb_paths
 import facts_overlap
 import roll_log
@@ -62,6 +63,14 @@ def cli_main(argv: list[str] | None = None) -> int:
 
     findings = check_dates.scan(kd, today)
     print(f"  stale dates: {len(findings)} past date(s) still framed as future  → scripts/check-dates")
+
+    hb = check_handbook.check(Path(kd))
+    hb_pages = len(check_handbook.pages(Path(kd)))
+    hb_stale = sorted({f["page"] for f in hb if f["code"] == "stale"})
+    hb_err = sum(1 for f in hb if f["severity"] == "error")
+    print(f"  handbook: {hb_pages} page(s), {len(hb_stale)} behind their sources"
+          + (f", {hb_err} with bad sources" if hb_err else "")
+          + (f" — {', '.join(hb_stale[:3])}  → scripts/check-handbook" if hb_stale or hb_err else ""))
 
     fo = facts_overlap.collect(kd)
     th = sum(r["hi"] for r in fo); tm = sum(r["mid"] for r in fo)

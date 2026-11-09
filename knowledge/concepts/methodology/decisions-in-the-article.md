@@ -3,7 +3,7 @@ title: Decisions live in the article; the story lives in the log
 description: "A dated ## Decisions section per article — one bullet per decision, chose X over Y because Z, tagged *(decision: who)* — surfaced as a D count in the index. The log keeps the narrative; the article keeps the verbatim record"
 type: concept
 area: methodology
-updated: 2026-09-21
+updated: 2026-11-09
 status: thin
 affects: ['actions/drift-check/build_index.py']
 load_bearing: true
@@ -35,6 +35,10 @@ verbatim, in one line —
 The log entry keeps the story (what was tried, what it cost); the article
 keeps the record; the index shows a `D<n>` count so the reader can see
 which articles carry history before opening them.
+
+Decisions stay in concept articles. A handbook page states only the
+outcome, current state, and points to the article that holds the
+decision ([handbook-layer](handbook-layer.md)).
 
 ## Why not ADRs
 

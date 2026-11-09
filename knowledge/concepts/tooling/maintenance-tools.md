@@ -3,7 +3,7 @@ title: Maintenance tools — the local suite, the gate, and the session status
 description: "The local maintenance suite: link checking, index generation from frontmatter, updated:-date bumping, drift-sweep worklists, and log rotation — five stdlib-only tools sharing the validate_articles frontmatter parser"
 type: concept
 area: tooling
-updated: 2026-09-21
+updated: 2026-11-09
 status: thin
 affects:
   - 'actions/drift-check/check_links.py'
@@ -21,6 +21,8 @@ affects:
   - 'scripts/check-trailer'
   - 'actions/drift-check/check_dates.py'
   - 'scripts/check-dates'
+  - 'actions/drift-check/check_handbook.py'
+  - 'scripts/check-handbook'
   - 'actions/drift-check/facts_overlap.py'
   - 'actions/drift-check/kb_status.py'
   - 'actions/drift-check/kb_paths.py'
@@ -57,6 +59,7 @@ references:
 - **check-affects**: `scripts/check-affects [--source-root P] [--strict]` — affects hygiene: free-text/article-tree = error; dead-glob/bare-literal = warn; `external:` exempt
 - **check-trailer**: `scripts/check-trailer --knowledge-repo P [--install|--warn-only]` — PRODUCT-repo commit-msg hook: mapped changes require a `Knowledge:` trailer or `no knowledge impact:` line
 - **check-dates**: `scripts/check-dates [--today D] [--strict]` — past dates still framed as future (sweep/CI-non-blocking, NOT the commit gate: findings appear because time passed)
+- **check-handbook**: `scripts/check-handbook [--strict] [--json]` — handbook pages vs their `sources:`: no/dead sources fail, a source `updated:` after the page warns (IN the commit gate as a warning; skipped where the wrapper is absent) — see `concepts/methodology/handbook-layer.md`
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
 Five local tools that mechanize the recurring upkeep a knowledge base
@@ -85,6 +88,7 @@ failure so every tool is CI-able.
 | `check-affects` | Lints every `affects:` entry — free text and `knowledge/**`-tree claims are errors; dead globs and dead bare literals warn (liveness vs this repo + repeatable `--source-root`); `external:`-prefixed entries exempt. Semantics: [[affects-globs]] hygiene rules | The four latent mapping bugs the commit gate's maiden run caught by trial-and-error — as a linter, before commit |
 | `check-trailer` | Runs in a *product* repo (commit-msg hook via `--install`): staged paths matched against the knowledge repo's `affects:` globs (same matcher: `**`, braces, repo-basename-prefixed candidates; `external:` entries match by repo name — path-SEGMENT equality with dotted segments excluded, so a repo named after part of the GitLab host can't false-match → whole-repo mapping) — a mapped change without a `Knowledge:` trailer or `no knowledge impact:` line blocks, printing the expected article list. `--warn-only` for soft rollout; no CI net behind `--no-verify` in product repos is a documented trade-off | The same-task rule's cross-repo half riding on agent memory alone |
 | `check-dates` | Flags time-bombed prose: a past date co-occurring with a future-tense marker (will/expected/retires/deadline/by then/…) on one line; ISO + month-year dates; frontmatter, code, provenance tags, dated log headings masked; `--today` time-travel for previews. Marker list pruned on the first 98-article audit (39→13): "ships", "before"/"pre-", "not yet" are majority-noise in real prose (contains-sense, historical statements, attribution dates); quoted speech remains a known noise source. Warn-only by design — findings appear because *time passed*, so it belongs in the periodic sweep and non-blocking CI, never the commit gate | A hard vendor date sitting future-tense across 4+ articles for three weeks after it passed |
+| `check-handbook` | Each `knowledge/handbook/*.md` page must name the concept articles it synthesises in `sources:` (paths under `knowledge/`); errors on none or a dead path, warns when a source's `updated:` is later than the page's. Unlike check-dates it is gate-worthy: staleness is caused by a commit to a source, not by time passing. Warn, not fail — the fix is a re-read and the page is usually still right | A current-state page explaining a superseded key model after its source article was corrected |
 | `build-facts` | Concatenates articles' `## Facts` sections per `area:` into generated `knowledge/facts/<area>.md` (sentinel first line; orphan cleanup; `--check` gate). Semantics: [[facts-register]] | Needle queries paying 20–60KB prose loads for one-line answers |
 
 ## Added 2026-09-21 (from the field repo's tooling day)

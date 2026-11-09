@@ -16,6 +16,7 @@ Atomic lookup facts extracted from the `tooling` articles' `## Facts` sections b
 - **check-affects**: `scripts/check-affects [--source-root P] [--strict]` — affects hygiene: free-text/article-tree = error; dead-glob/bare-literal = warn; `external:` exempt
 - **check-trailer**: `scripts/check-trailer --knowledge-repo P [--install|--warn-only]` — PRODUCT-repo commit-msg hook: mapped changes require a `Knowledge:` trailer or `no knowledge impact:` line
 - **check-dates**: `scripts/check-dates [--today D] [--strict]` — past dates still framed as future (sweep/CI-non-blocking, NOT the commit gate: findings appear because time passed)
+- **check-handbook**: `scripts/check-handbook [--strict] [--json]` — handbook pages vs their `sources:`: no/dead sources fail, a source `updated:` after the page warns (IN the commit gate as a warning; skipped where the wrapper is absent) — see `concepts/methodology/handbook-layer.md`
 - **Implementations**: `actions/drift-check/*.py` (shared parser); wrappers: `scripts/*` *(code: actions/drift-check/)*
 
 Five local tools that mechanize the recurring upkeep a knowledge base

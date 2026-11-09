@@ -33,6 +33,14 @@ run "check-links"        scripts/check-links --exclude 'log/*'
 run "build-index --check" scripts/build-index --check
 run "kb-tool unit tests" python3 -m unittest discover -q -s actions/drift-check/tests
 run "build-facts --check" scripts/build-facts --check
+# Handbook pages (knowledge/handbook/): a missing or dead `sources:` entry fails; a
+# page whose source article was updated after it only WARNS (exit 0) — the fix is
+# a re-read. A KB that has not adopted the handbook has no wrapper: say so, don't fail.
+if [ -x scripts/check-handbook ]; then
+  run "check-handbook"     scripts/check-handbook
+else
+  echo "== check-handbook: not set up in this KB (no scripts/check-handbook)"
+fi
 run "roll-log --check"   scripts/roll-log --check
 run "drift-check (staged)" scripts/drift-check --base-ref HEAD
 

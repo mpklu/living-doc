@@ -68,6 +68,10 @@ The workspace-level pattern: each repo has its own `CLAUDE.md` and `knowledge/` 
 
 The cross-repo half of the same-task rule: a product-repo commit that touches code mapped by any article's `affects:` globs names the obligated article in a `Knowledge: <article>` commit trailer (or declares `no knowledge impact: <reason>`). Enforced by `scripts/check-trailer` installed as a `commit-msg` hook in each product repo — the knowledge repo's drift-check cannot see product-repo diffs, so this hook is that seam's only mechanical guard.
 
+### Handbook (`knowledge/handbook/`)
+
+An optional layer of current-state pages, one per subject, written in plain prose for developers and non-developers alike. Each page is a synthesis: it lists the concept articles it draws on in frontmatter `sources:`, and `check-handbook` warns when one of them changes after the page. No history, no provenance tags — those stay in the concept articles. See `knowledge/concepts/methodology/handbook-layer.md`.
+
 ### Knowledge base (`knowledge/`)
 
 The directory at the project root that holds all articles. Treated as the source of truth for the project's behaviour and rationale. Mirrors the code; updated in the same task as the code.

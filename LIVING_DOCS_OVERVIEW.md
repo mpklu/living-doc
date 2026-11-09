@@ -45,6 +45,10 @@ Two file conventions:
 - **`knowledge/concepts/{area}/*.md`** — atomic articles describing *what something is and why*. Grouped by subject area (project internals, external systems, tooling, project context).
 - **`knowledge/connections/*.md`** — cross-cutting articles describing *how multiple concepts interact*. These are the only articles that span beyond a single concept.
 
+One optional layer:
+
+- **`knowledge/handbook/*.md`** — current-state pages, one per subject, for readers who want *what is true now* rather than the record. Every page synthesises concept articles named in its `sources:` and never holds a fact of its own; `check-handbook` flags a page whose sources changed after it.
+
 ## Choosing the adoption path
 
 Decision tree the agent should walk when asked to set up or evaluate this methodology:

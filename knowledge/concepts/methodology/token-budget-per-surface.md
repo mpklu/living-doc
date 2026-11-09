@@ -3,7 +3,7 @@ title: A token budget per surface — what is read when, and how big it may be
 description: "Every KB surface is read at a known moment: session start, per routed question, per lookup, per write. Name the moment, hold the size, and put the trigger for periodic work where it fires every time"
 type: concept
 area: methodology
-updated: 2026-09-21
+updated: 2026-11-09
 status: thin
 affects: ['actions/drift-check/kb_status.py']
 load_bearing: true
@@ -42,6 +42,10 @@ gesture, three stalest articles, stale-date count, worklist heads, latest
 entries, whether enforcement hooks are installed — costs ~300 tokens and
 fires every session. Periodic work needs a place in the loop, not a
 sentence in a guide.
+
+One line per check that a session should act on: the handbook adds
+`handbook: N page(s), M behind their sources` (2026-11-09) — a few tokens,
+and the stale count is the trigger to re-read a page.
 
 ## Rules of thumb
 

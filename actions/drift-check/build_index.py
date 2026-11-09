@@ -41,7 +41,8 @@ from pathlib import Path
 
 from validate_articles import parse_frontmatter
 
-ARTICLE_ROOTS = ("concepts", "connections")
+# handbook/ holds current-state pages synthesised from concepts/ (check_handbook.py keeps them fresh).
+ARTICLE_ROOTS = ("concepts", "connections", "handbook")
 SCOPES_FILE = "scopes.md"
 INDEX_NAME = "_index.md"
 SCOPE_LINE_RE = re.compile(r"^-\s+\*\*([^*]+)\*\*\s+[—–-]+\s+(.+?)\s*$")

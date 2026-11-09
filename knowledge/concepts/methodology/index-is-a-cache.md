@@ -3,7 +3,7 @@ title: The index is a cache — generate it per directory, curate only scope lin
 description: "A hand-curated index rots at a cache's rate (it dropped 5 of 131 articles unnoticed) and the human reader did not use it. Routing is one generated _index.md per content directory, recursive; the only curated input is one scope line per directory"
 type: concept
 area: methodology
-updated: 2026-09-21
+updated: 2026-11-09
 status: thin
 affects: ['actions/drift-check/build_index.py']
 load_bearing: true
@@ -43,6 +43,11 @@ change.
 The **only curated input** is `scopes.md`: one line per content directory,
 keyed by path. A content directory without a line fails the gate — the fix
 is one line.
+
+The indexed roots are `concepts/`, `connections/` and, where a KB adopts
+it, `handbook/` (2026-11-09); the handbook's pages are indexed like
+articles, with an empty affects column — they document subjects, not code
+paths ([handbook-layer](handbook-layer.md)).
 
 ## Why `_index.md`, not `README.md`
 

@@ -10,6 +10,10 @@ If you reference this repo by URL in your project's `CLAUDE.md`, pin to a tag (e
 
 ## [Unreleased]
 
+### Added — optional handbook layer (from the field hub, 2026-11-09)
+- `knowledge/handbook/`: current-state pages, one per subject, plain prose for developers and non-developers. Each page lists the concept articles it synthesises in frontmatter `sources:` (other repos in free-text `external_sources:`); one home per fact still holds. `build-index` indexes the directory. (`concepts/methodology/handbook-layer.md`)
+- `scripts/check-handbook` (+ `check_handbook.py`, 8 tests): fails a page with no or dead `sources:`, warns when a source's `updated:` is newer than the page's (`--strict` fails). In `pre-commit-gate` as a warning, skipped with a "not set up" line where the wrapper is absent; `kb-status` prints a `handbook:` line.
+
 ### Changed — BREAKING for the knowledge/ shape (from one day of hardening in a ~130-article hub, 2026-09-21)
 - **No `index.md`.** `build-index` generates one `_index.md` in every content directory (subdirectory table with scope · count · F · D, then one row per article), recursive to any depth. The only curated input is `scopes.md`: one scope line per content directory, keyed by path; a content directory without one fails `--check`. Templates, guides, prompts, skill and installer updated. Why: hand-written index sections had silently dropped 5 of 131 articles; the human reader did not use the page; a single generated manifest cost ~10k tokens per routed question. (`concepts/methodology/index-is-a-cache.md`)
 - **No `log.md`.** An entry is a file, `knowledge/log/entries/YYYY-MM-DD-<slug>.md`, first line `## YYYY-MM-DD — <title>` (the `## [date] area | title` form is accepted). Nothing renders them. `roll-log --check` validates headers (in the gate); `roll-log` renames files older than 14 days into `log/YYYY-MM/`; `--long` lists entries over 400 words. Why: one active month reached 80 entries / 2,248 lines in the single file; prepending raced sessions. (`concepts/methodology/log-as-files.md`)
